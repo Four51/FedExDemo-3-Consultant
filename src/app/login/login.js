@@ -79,6 +79,7 @@ function LoginController( $state, $stateParams, $exceptionHandler, OrderCloud, L
         OrderCloud.Auth.GetToken(vm.credentials)
             .then(function(data) {
                 OrderCloud.Auth.SetToken(data['access_token']);
+                OrderCloud.BuyerID.Get() ? angular.noop() : OrderCloud.BuyerID.Set(buyerid);
                 $state.go('home');
             })
             .catch(function(ex) {

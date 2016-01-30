@@ -3,6 +3,7 @@ angular.module( 'orderCloud' )
 	.config( BaseConfig )
 	.controller( 'BaseCtrl', BaseController )
     .controller( 'BaseLeftCtrl', BaseLeftController )
+    .controller( 'BaseLeftFedExCtrl', BaseLeftFedExController )
     .controller( 'BaseTopCtrl', BaseTopController )
 
 ;
@@ -24,9 +25,14 @@ function BaseConfig( $stateProvider ) {
                     controller: 'BaseTopCtrl',
                     controllerAs: 'baseTop'
                 },
-                'left@base': {
+                /*'left@base': {
                     templateUrl: 'base/templates/base.left.tpl.html',
                     controller: 'BaseLeftCtrl',
+                    controllerAs: 'baseLeft'
+                }*/
+                'left@base': {
+                    templateUrl: 'base/templates/base.left.fedex.tpl.html',
+                    controller: 'BaseLeftFedExCtrl',
                     controllerAs: 'baseLeft'
                 }
             },
@@ -73,6 +79,9 @@ function BaseConfig( $stateProvider ) {
                     });
                     deferred.resolve(components);
                     return deferred.promise;
+                },
+                CategoryList: function(OrderCloud) {
+                    return OrderCloud.Categories.List(null, 'all');
                 }
             }
 		});
@@ -92,4 +101,9 @@ function BaseLeftController(ComponentList) {
 
 function BaseTopController() {
     var vm = this;
+}
+
+function BaseLeftFedExController(CategoryList) {
+    var vm = this;
+    vm.categories = CategoryList;
 }

@@ -2,5 +2,15 @@
 	<header class="jumbotron text-center">
 		<h2 ng-bind="application.name"></h2>
 	</header>
+	<div class="row">
+		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items">
+			<div class="thumbnail" ui-sref="{{category.ID}}">
+				<img src="http://placehold.it/300x300">
+				<div class="caption text-center">
+					<h3>{{category.Name}}</h3>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 

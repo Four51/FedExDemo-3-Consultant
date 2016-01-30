@@ -16,6 +16,7 @@ function HomeConfig( $stateProvider ) {
 		})
 }
 
-function HomeController( ) {
+function HomeController(CategoryList) {
 	var vm = this;
+	vm.categories = CategoryList;
 }

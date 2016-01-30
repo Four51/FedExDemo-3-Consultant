@@ -28,6 +28,16 @@ angular.module( 'orderCloud', [
 	.config( Routing )
 	.config( ErrorHandling )
 	.controller( 'AppCtrl', AppCtrl )
+	.constant("appname", "MedicalComplianceConsultingFirm")
+
+	//App Constants used by the OrderCloud SDK
+	.constant("ocscope", "FullAccess")
+	.constant("clientid", "a2bada54-2875-4332-9561-6be354ca039e")
+	.constant("buyerid", "MedicalComplianceConsultingFirm")
+
+	//OrderCloud Base URLs
+	.constant("authurl", "https://auth.ordercloud.io/oauth/token")
+	.constant("apiurl", "https://api.ordercloud.io")
 ;
 
 function SetBuyerID( OrderCloud, buyerid ) {

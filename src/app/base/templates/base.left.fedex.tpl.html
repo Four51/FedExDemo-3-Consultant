@@ -1,0 +1,16 @@
+<aside id="BaseLeft">
+    <nav>
+        <ul class="nav nav-pills nav-stacked">
+            <li role="presentation" ui-sref-active="active">
+                <a href="" ui-sref="home"><i class="fa fa-home"></i> Home</a>
+            </li>
+        </ul>
+    </nav>
+    <nav>
+        <ul class="nav nav-pills nav-stacked">
+            <li role="presentation" ng-repeat="category in baseLeft.categories.Items" ui-sref-active="active">
+                <a href="" ui-sref="{{category.ID}}">{{category.Name}}</a>
+            </li>
+        </ul>
+    </nav>
+</aside>
