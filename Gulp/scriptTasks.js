@@ -48,8 +48,8 @@ gulp.task('b_m:configjs', function() {
             name:'orderCloud',
             deps: false,
             constants: {
-                authurl: process.env.authurl || 'https://testauth.ordercloud.io/oauth/token',
-                apiurl: process.env.apiurl || 'https://testapi.ordercloud.io'
+                authurl: process.env.authurl || 'https://auth.ordercloud.io/oauth/token',
+                apiurl: process.env.apiurl || 'https://api.ordercloud.io'
             }
         }))
         .pipe(gulp.dest(config.build + 'src/app'))
