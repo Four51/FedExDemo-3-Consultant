@@ -19,8 +19,8 @@ function AdminUsersConfig( $stateProvider ) {
                 componentName: 'Admin Users'
             },
             resolve: {
-                AdminUsersList: function(AdminUsers) {
-                    return AdminUsers.List();
+                AdminUsersList: function(OrderCloud) {
+                    return OrderCloud.AdminUsers.List();
                 }
             }
         })
@@ -30,8 +30,8 @@ function AdminUsersConfig( $stateProvider ) {
             controller:'AdminUserEditCtrl',
             controllerAs: 'adminUserEdit',
             resolve: {
-                SelectedAdminUser: function($stateParams, AdminUsers) {
-                    return AdminUsers.Get($stateParams.adminuserid);
+                SelectedAdminUser: function($stateParams, OrderCloud) {
+                    return OrderCloud.AdminUsers.Get($stateParams.adminuserid);
                 }
             }
         })
@@ -51,7 +51,7 @@ function AdminUsersController( AdminUsersList, TrackSearch ) {
     };
 }
 
-function AdminUserEditController( $exceptionHandler, $state, SelectedAdminUser, AdminUsers ) {
+function AdminUserEditController( $exceptionHandler, $state, OrderCloud, SelectedAdminUser ) {
     var vm = this,
         adminuserid = SelectedAdminUser.ID;
     vm.adminUserName = SelectedAdminUser.Username;
@@ -61,7 +61,7 @@ function AdminUserEditController( $exceptionHandler, $state, SelectedAdminUser, 
     }
 
     vm.Submit = function() {
-        AdminUsers.Update(adminuserid, vm.adminUser)
+        OrderCloud.AdminUsers.Update(adminuserid, vm.adminUser)
             .then(function() {
                 $state.go('adminUsers', {}, {reload:true})
             })
@@ -71,7 +71,7 @@ function AdminUserEditController( $exceptionHandler, $state, SelectedAdminUser, 
     };
 
     vm.Delete = function() {
-        AdminUsers.Delete(adminuserid)
+        OrderCloud.AdminUsers.Delete(adminuserid)
             .then(function() {
                 $state.go('adminUsers', {}, {reload:true})
             })
@@ -81,13 +81,13 @@ function AdminUserEditController( $exceptionHandler, $state, SelectedAdminUser, 
     }
 }
 
-function AdminUserCreateController( $exceptionHandler, $state, AdminUsers ) {
+function AdminUserCreateController( $exceptionHandler, $state, OrderCloud ) {
     var vm = this;
     vm.adminUser = {Email:"", Password:""};
     vm.Submit = function() {
         var today = new Date();
         vm.adminUser.TermsAccepted = today;
-        AdminUsers.Create( vm.adminUser)
+        OrderCloud.AdminUsers.Create( vm.adminUser)
             .then(function() {
                 $state.go('adminUsers', {}, {reload:true})
             })

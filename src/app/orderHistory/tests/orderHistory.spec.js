@@ -1,15 +1,17 @@
 describe('Component: OrderHistory', function() {
     var scope,
         q,
+        oc,
         order,
         lineItemList,
         product,
         spendingAccount;
     beforeEach(module('orderCloud'));
     beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
+        oc = OrderCloud;
         order = {
             ID: "TestOrder123456789",
             Type: "Standard",
@@ -107,11 +109,11 @@ describe('Component: OrderHistory', function() {
         var state;
         beforeEach(inject(function($state, Orders) {
             state = $state.get('orderHistory');
-            spyOn(Orders, 'List').and.returnValue(null);
+            spyOn(oc.Orders, 'List').and.returnValue(null);
         }));
         it('should resolve OrderList', inject(function($injector, Orders) {
             $injector.invoke(state.resolve.OrderList);
-            expect(Orders.List).toHaveBeenCalledWith('incoming');
+            expect(oc.Orders.List).toHaveBeenCalledWith('incoming');
         }));
     });
 
@@ -142,7 +144,7 @@ describe('Component: OrderHistory', function() {
 
     describe('Factory: OrderHistoryFactory', function() {
         var orderHistoryService, orderID, productID;
-        beforeEach(inject(function(OrderHistoryFactory, Orders, LineItems, Products, SpendingAccounts) {
+        beforeEach(inject(function(OrderHistoryFactory) {
             orderHistoryService = OrderHistoryFactory;
             var orderDefer = q.defer();
             var lineItemDefer = q.defer();
@@ -152,10 +154,10 @@ describe('Component: OrderHistory', function() {
             lineItemDefer.resolve(lineItemList);
             productDefer.resolve(product);
             spendingAccountDefer.resolve(spendingAccount);
-            spyOn(Orders, 'Get').and.returnValue(orderDefer.promise);
-            spyOn(LineItems, 'List').and.returnValue(lineItemDefer.promise);
-            spyOn(Products, 'Get').and.returnValue(productDefer.promise);
-            spyOn(SpendingAccounts, 'Get').and.returnValue(spendingAccountDefer.promise);
+            spyOn(oc.Orders, 'Get').and.returnValue(orderDefer.promise);
+            spyOn(oc.LineItems, 'List').and.returnValue(lineItemDefer.promise);
+            spyOn(oc.Products, 'Get').and.returnValue(productDefer.promise);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(spendingAccountDefer.promise);
             //scope.$digest();
         }));
 
@@ -166,15 +168,15 @@ describe('Component: OrderHistory', function() {
                 orderHistoryService.GetOrderDetails(orderID);
                 scope.$digest();
             });
-            it ('should call an Order Get', inject(function(Orders) {
-                expect(Orders.Get).toHaveBeenCalledWith(orderID);
-            }));
-            it ('should call a Line Item List', inject(function(LineItems) {
-                expect(LineItems.List).toHaveBeenCalledWith(orderID, 1, 100);
-            }));
-            it ('should call a Product Get', inject(function(Products) {
-                expect(Products.Get).toHaveBeenCalledWith(productID);
-            }));
+            it ('should call an Order Get', function() {
+                expect(oc.Orders.Get).toHaveBeenCalledWith(orderID);
+            });
+            it ('should call a Line Item List', function() {
+                expect(oc.LineItems.List).toHaveBeenCalledWith(orderID, 1, 100);
+            });
+            it ('should call a Product Get', function() {
+                expect(oc.Products.Get).toHaveBeenCalledWith(productID);
+            });
         });
     });
 });

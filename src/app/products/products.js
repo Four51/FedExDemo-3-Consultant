@@ -19,8 +19,8 @@ function ProductsConfig($stateProvider) {
             controllerAs: 'products',
             data: {componentName: 'Products'},
             resolve: {
-                ProductList: function (Products) {
-                    return Products.List();
+                ProductList: function (OrderCloud) {
+                    return OrderCloud.Products.List();
                 }
             }
         })
@@ -30,8 +30,8 @@ function ProductsConfig($stateProvider) {
             controller: 'ProductEditCtrl',
             controllerAs: 'productEdit',
             resolve: {
-                SelectedProduct: function ($stateParams, Products) {
-                    return Products.Get($stateParams.productid);
+                SelectedProduct: function ($stateParams, OrderCloud) {
+                    return OrderCloud.Products.Get($stateParams.productid);
                 }
             }
         })
@@ -47,11 +47,11 @@ function ProductsConfig($stateProvider) {
             controller: 'ProductAssignmentsCtrl',
             controllerAs: 'productAssignments',
             resolve: {
-                SelectedProduct: function($stateParams, Products) {
-                    return Products.Get($stateParams.productid);
+                SelectedProduct: function($stateParams, OrderCloud) {
+                    return OrderCloud.Products.Get($stateParams.productid);
                 },
-                Assignments: function($stateParams, Products) {
-                    return Products.ListAssignments($stateParams.productid);
+                Assignments: function($stateParams, OrderCloud) {
+                    return OrderCloud.Products.ListAssignments($stateParams.productid);
                 }
             }
         })
@@ -61,11 +61,11 @@ function ProductsConfig($stateProvider) {
             controller: 'ProductCreateAssignmentCtrl',
             controllerAs: 'productCreateAssignment',
             resolve: {
-                UserGroupList: function (UserGroups) {
-                    return UserGroups.List(null, 1, 20);
+                UserGroupList: function (OrderCloud) {
+                    return OrderCloud.UserGroups.List(null, 1, 20);
                 },
-                PriceScheduleList: function (PriceSchedules) {
-                    return PriceSchedules.List(1, 20);
+                PriceScheduleList: function (OrderCloud) {
+                    return OrderCloud.PriceSchedules.List(1, 20);
                 }
             }
         });
@@ -79,14 +79,14 @@ function ProductsController(ProductList, TrackSearch) {
     };
 }
 
-function ProductEditController($exceptionHandler, $state, SelectedProduct, Products) {
+function ProductEditController($exceptionHandler, $state, OrderCloud, SelectedProduct) {
     var vm = this,
         productid = angular.copy(SelectedProduct.ID);
     vm.productName = angular.copy(SelectedProduct.Name);
     vm.product = SelectedProduct;
 
     vm.Submit = function () {
-        Products.Update(productid, vm.product)
+        OrderCloud.Products.Update(productid, vm.product)
             .then(function () {
                 $state.go('products', {}, {reload:true})
             })
@@ -96,7 +96,7 @@ function ProductEditController($exceptionHandler, $state, SelectedProduct, Produ
     };
 
     vm.Delete = function () {
-        Products.Delete(productid)
+        OrderCloud.Products.Delete(productid)
             .then(function () {
                 $state.go('products', {}, {reload:true})
             })
@@ -106,12 +106,12 @@ function ProductEditController($exceptionHandler, $state, SelectedProduct, Produ
     }
 }
 
-function ProductCreateController($exceptionHandler, $state, Products) {
+function ProductCreateController($exceptionHandler, $state, OrderCloud) {
     var vm = this;
     vm.product = {};
 
     vm.Submit = function () {
-        Products.Create(vm.product)
+        OrderCloud.Products.Create(vm.product)
             .then(function () {
                 $state.go('products', {}, {reload:true})
             })
@@ -121,7 +121,7 @@ function ProductCreateController($exceptionHandler, $state, Products) {
     }
 }
 
-function ProductAssignmentsController($exceptionHandler, $stateParams, $state, SelectedProduct, Assignments, Products) {
+function ProductAssignmentsController($exceptionHandler, $stateParams, $state, OrderCloud, SelectedProduct, Assignments) {
     var vm = this;
     vm.list = Assignments.Items;
     vm.productID = $stateParams.productid;
@@ -129,7 +129,7 @@ function ProductAssignmentsController($exceptionHandler, $stateParams, $state, S
     vm.pagingfunction = PagingFunction;
 
     vm.Delete = function(scope) {
-        Products.DeleteAssignment($stateParams.productid, null, scope.assignment.UserGroupID)
+        OrderCloud.Products.DeleteAssignment($stateParams.productid, null, scope.assignment.UserGroupID)
             .then(function() {
                 $state.reload();
             })
@@ -140,7 +140,7 @@ function ProductAssignmentsController($exceptionHandler, $stateParams, $state, S
 
     function PagingFunction() {
         if (vm.list.Meta.Page < vm.list.Meta.TotalPages) {
-            Products.ListAssignments($stateParams.productid, null, null, null, null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize)
+            OrderCloud.Products.ListAssignments($stateParams.productid, null, null, null, null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize)
                 .then(function(data) {
                     vm.list.Items = [].concat(vm.list.Items, data.Items);
                     vm.list.Meta = data.Meta;
@@ -149,14 +149,14 @@ function ProductAssignmentsController($exceptionHandler, $stateParams, $state, S
     }
 }
 
-function ProductCreateAssignmentController($q, $stateParams, $state, Underscore, UserGroupList, PriceScheduleList, Products, BuyerID) {
+function ProductCreateAssignmentController($q, $stateParams, $state, Underscore, OrderCloud, UserGroupList, PriceScheduleList) {
     var vm = this;
     vm.list = UserGroupList;
     vm.priceSchedules = PriceScheduleList.Items;
     vm.assignBuyer = false;
     vm.model = {
         ProductID:$stateParams.productid,
-        BuyerID: BuyerID.Get(),
+        BuyerID: OrderCloud.BuyerID.Get(),
         UserGroupID: null,
         StandardPriceScheduleID: null,
         ReplenishmentPriceScheduleID: null
@@ -173,7 +173,7 @@ function ProductCreateAssignmentController($q, $stateParams, $state, Underscore,
     vm.submit = function() {
         if (!(vm.model.StandardPriceScheduleID || vm.model.ReplenishmentPriceScheduleID) || (!vm.assignBuyer && !Underscore.where(vm.list.Items, {selected:true}).length)) return;
         if (vm.assignBuyer) {
-            Products.SaveAssignment(vm.model).then(function() {
+            OrderCloud.Products.SaveAssignment(vm.model).then(function() {
                 $state.go('base.productAssignments', {productid:$stateParams.productid});
             })
         } else {
@@ -183,7 +183,7 @@ function ProductCreateAssignmentController($q, $stateParams, $state, Underscore,
                     var df = $q.defer();
                     var assignment = angular.copy(vm.model);
                     assignment.UserGroupID = group.ID;
-                    Products.SaveAssignment(assignment).then(function() {
+                    OrderCloud.Products.SaveAssignment(assignment).then(function() {
                         df.resolve();
                     });
                     return df.promise;

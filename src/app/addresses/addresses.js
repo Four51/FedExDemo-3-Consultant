@@ -18,8 +18,8 @@ function AddressesConfig( $stateProvider ) {
 			controllerAs: 'addresses',
 			data: {componentName: 'Addresses'},
 			resolve: {
-				AddressList: function(Addresses) {
-					return Addresses.List();
+				AddressList: function(OrderCloud) {
+					return OrderCloud.Addresses.List();
 				}
 			}
 		})
@@ -29,8 +29,8 @@ function AddressesConfig( $stateProvider ) {
 			controller:'AddressEditCtrl',
 			controllerAs: 'addressEdit',
 			resolve: {
-				SelectedAddress: function($stateParams, $state, Addresses) {
-					return Addresses.Get($stateParams.addressid).catch(function() {
+				SelectedAddress: function($stateParams, $state, OrderCloud) {
+					return OrderCloud.Addresses.Get($stateParams.addressid).catch(function() {
                         $state.go('^');
                     });
 				}
@@ -48,14 +48,14 @@ function AddressesConfig( $stateProvider ) {
 	        controller: 'AddressAssignCtrl',
 	        controllerAs: 'addressAssign',
 	        resolve: {
-                UserGroupList: function(UserGroups) {
-                    return UserGroups.List();
+                UserGroupList: function(OrderCloud) {
+                    return OrderCloud.UserGroups.List();
                 },
-                AssignmentsList: function($stateParams, Addresses) {
-                    return Addresses.ListAssignments($stateParams.addressid);
+                AssignmentsList: function($stateParams, OrderCloud) {
+                    return OrderCloud.Addresses.ListAssignments($stateParams.addressid);
                 },
-                SelectedAddress: function($stateParams, $state, Addresses) {
-                    return Addresses.Get($stateParams.addressid).catch(function() {
+                SelectedAddress: function($stateParams, $state, OrderCloud) {
+                    return OrderCloud.Addresses.Get($stateParams.addressid).catch(function() {
                         $state.go('^');
                     });
                 }
@@ -71,14 +71,14 @@ function AddressesController( AddressList, TrackSearch ) {
     };
 }
 
-function AddressEditController( $exceptionHandler, $state, SelectedAddress, Addresses ) {
+function AddressEditController( $exceptionHandler, $state, OrderCloud, SelectedAddress ) {
 	var vm = this,
         addressID = SelectedAddress.ID;
 	vm.addressName = SelectedAddress.AddressName;
 	vm.address = SelectedAddress;
 
 	vm.Submit = function() {
-		Addresses.Update(addressID, vm.address)
+		OrderCloud.Addresses.Update(addressID, vm.address)
 			.then(function() {
 				$state.go('addresses', {}, {reload:true});
 			})
@@ -88,7 +88,7 @@ function AddressEditController( $exceptionHandler, $state, SelectedAddress, Addr
 	};
 
 	vm.Delete = function() {
-		Addresses.Delete(SelectedAddress.ID, false)
+		OrderCloud.Addresses.Delete(SelectedAddress.ID, false)
 			.then(function() {
 				$state.go('addresses', {}, {reload:true})
 			})
@@ -98,12 +98,12 @@ function AddressEditController( $exceptionHandler, $state, SelectedAddress, Addr
 	};
 }
 
-function AddressCreateController($exceptionHandler, $state, Addresses) {
+function AddressCreateController($exceptionHandler, $state, OrderCloud) {
 	var vm = this;
 	vm.address = {};
 
 	vm.Submit = function() {
-		Addresses.Create(vm.address)
+		OrderCloud.Addresses.Create(vm.address)
 			.then(function() {
 				$state.go('addresses', {}, {reload:true})
 			})
@@ -113,7 +113,7 @@ function AddressCreateController($exceptionHandler, $state, Addresses) {
 	};
 }
 
-function AddressAssignController($q, $scope, $state, Assignments, Underscore, AssignmentsList, UserGroupList, Addresses, UserGroups, SelectedAddress) {
+function AddressAssignController($q, $scope, $state, Underscore, OrderCloud, Assignments, AssignmentsList, UserGroupList, SelectedAddress) {
     var vm = this;
     vm.list = UserGroupList;
     vm.assignments = AssignmentsList;
@@ -139,7 +139,7 @@ function AddressAssignController($q, $scope, $state, Assignments, Underscore, As
     }
 
     function AssignmentFunc() {
-        return Addresses.ListAssignments(vm.Address.ID, null, vm.assignments.Meta.PageSize);
+        return OrderCloud.Addresses.ListAssignments(vm.Address.ID, null, vm.assignments.Meta.PageSize);
     }
     
     vm.saveAssignments = SaveAssignments;
@@ -149,7 +149,7 @@ function AddressAssignController($q, $scope, $state, Assignments, Underscore, As
         if (vm.list.Meta.Page < vm.list.Meta.TotalPages) {
             var queue = [];
             var dfd = $q.defer();
-            queue.push(UserGroups.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize));
+            queue.push(OrderCloud.UserGroups.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize));
             if (AssignmentFunc !== undefined) {
                 queue.push(AssignmentFunc());
             }
@@ -180,7 +180,7 @@ function AddressAssignController($q, $scope, $state, Assignments, Underscore, As
         var dfd = $q.defer();
         angular.forEach(vm.list.Items, function(Item) {
             if ((Item.IsShipping || Item.IsBilling) && toAdd.indexOf(Item.ID) > -1) {
-                queue.push(Addresses.SaveAssignment({
+                queue.push(OrderCloud.Addresses.SaveAssignment({
                     UserID: null,
                     UserGroupID: Item.ID,
                     AddressID: vm.Address.ID,
@@ -191,7 +191,7 @@ function AddressAssignController($q, $scope, $state, Assignments, Underscore, As
             else if (toUpdate.indexOf(Item.ID) > -1) {
                 var AssignmentObject = Underscore.where(vm.assignments.Items, {UserGroupID: Item.ID})[0]; //Should be only one
                 if (AssignmentObject.IsShipping !== Item.IsShipping || AssignmentObject.IsBilling !== Item.IsBilling) {
-                    queue.push(Addresses.SaveAssignment({
+                    queue.push(OrderCloud.Addresses.SaveAssignment({
                         UserID: null,
                         UserGroupID: Item.ID,
                         AddressID: vm.Address.ID,
@@ -202,7 +202,7 @@ function AddressAssignController($q, $scope, $state, Assignments, Underscore, As
             }
         });
         angular.forEach(toDelete, function(ItemID) {
-            queue.push(Addresses.DeleteAssignment(vm.Address.ID, null, ItemID));
+            queue.push(OrderCloud.Addresses.DeleteAssignment(vm.Address.ID, null, ItemID));
         });
         $q.all(queue).then(function() {
             dfd.resolve();

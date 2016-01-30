@@ -20,8 +20,8 @@ function GiftCardsConfig( $stateProvider ) {
             controllerAs: 'giftCards',
             data: {componentName: 'Gift Cards'},
             resolve: {
-                GiftCardList: function(SpendingAccounts) {
-                    return SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '*'});
+                GiftCardList: function(OrderCloud) {
+                    return OrderCloud.SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '*'});
                 }
             }
         })
@@ -31,8 +31,8 @@ function GiftCardsConfig( $stateProvider ) {
             controller: 'GiftCardEditCtrl',
             controllerAs: 'giftCardEdit',
             resolve: {
-                SelectedGiftCard: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.giftCardid);
+                SelectedGiftCard: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.giftCardid);
                 }
             }
         })
@@ -48,14 +48,14 @@ function GiftCardsConfig( $stateProvider ) {
             controller: 'GiftCardAssignGroupCtrl',
             controllerAs: 'giftCardAssign',
             resolve: {
-                UserGroupList: function(UserGroups) {
-                    return UserGroups.List();
+                UserGroupList: function(OrderCloud) {
+                    return OrderCloud.UserGroups.List();
                 },
-                AssignedUserGroups: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.ListAssignments($stateParams.giftCardid, null, null, 'Group');
+                AssignedUserGroups: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.ListAssignments($stateParams.giftCardid, null, null, 'Group');
                 },
-                SelectedGiftCard: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.giftCardid);
+                SelectedGiftCard: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.giftCardid);
                 }
             }
         })
@@ -65,20 +65,20 @@ function GiftCardsConfig( $stateProvider ) {
             controller: 'GiftCardAssignUserCtrl',
             controllerAs: 'giftCardAssignUser',
             resolve: {
-                UserList: function(Users) {
-                    return Users.List();
+                UserList: function(OrderCloud) {
+                    return OrderCloud.Users.List();
                 },
-                AssignedUsers: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.ListAssignments($stateParams.giftCardid, null, null, 'User');
+                AssignedUsers: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.ListAssignments($stateParams.giftCardid, null, null, 'User');
                 },
-                SelectedGiftCard: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.giftCardid);
+                SelectedGiftCard: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.giftCardid);
                 }
             }
         });
 }
 
-function GiftCardsController ( GiftCardList, SpendingAccounts, TrackSearch ) {
+function GiftCardsController ( OrderCloud, GiftCardList, TrackSearch ) {
     var vm = this;
     vm.list = GiftCardList;
     vm.pagingfunction = PagingFunction;
@@ -89,16 +89,16 @@ function GiftCardsController ( GiftCardList, SpendingAccounts, TrackSearch ) {
 
     function PagingFunction() {
         if (vm.list.Meta.Page < vm.list.Meta.TotalPages) {
-            SpendingAccounts.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'});
+            OrderCloud.SpendingAccounts.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'});
         }
     }
 
     function Search(searchTerm) {
-        return SpendingAccounts.List(searchTerm, null, null, null, null, {'RedemptionCode': '*'});
+        return OrderCloud.SpendingAccounts.List(searchTerm, null, null, null, null, {'RedemptionCode': '*'});
     }
 }
 
-function GiftCardEditController($state, $exceptionHandler, SelectedGiftCard, GiftCardFactory, SpendingAccounts) {
+function GiftCardEditController($state, $exceptionHandler, OrderCloud, SelectedGiftCard, GiftCardFactory) {
     var vm = this,
         giftCardID = SelectedGiftCard.ID;
     vm.format = GiftCardFactory.dateFormat;
@@ -109,7 +109,7 @@ function GiftCardEditController($state, $exceptionHandler, SelectedGiftCard, Gif
     vm.giftCard.AllowAsPaymentMethod = true;
 
     function Submit() {
-        SpendingAccounts.Update(giftCardID, vm.giftCard)
+        OrderCloud.SpendingAccounts.Update(giftCardID, vm.giftCard)
             .then(function() {
                 $state.go('giftCards', {}, {reload:true})
             })
@@ -119,7 +119,7 @@ function GiftCardEditController($state, $exceptionHandler, SelectedGiftCard, Gif
     }
 
     function Delete() {
-        SpendingAccounts.Delete(giftCardID)
+        OrderCloud.SpendingAccounts.Delete(giftCardID)
             .then(function() {
                 $state.go('giftCards', {}, {reload:true})
             })
@@ -129,7 +129,7 @@ function GiftCardEditController($state, $exceptionHandler, SelectedGiftCard, Gif
     }
 }
 
-function GiftCardCreateController($state, $exceptionHandler, GiftCardFactory, SpendingAccounts) {
+function GiftCardCreateController($state, $exceptionHandler, OrderCloud, GiftCardFactory) {
     var vm = this;
     vm.format = GiftCardFactory.dateFormat;
     vm.open1 = vm.open2 = false;
@@ -140,7 +140,7 @@ function GiftCardCreateController($state, $exceptionHandler, GiftCardFactory, Sp
     vm.giftCard.AllowAsPaymentMethod = true;
 
     function Submit() {
-        SpendingAccounts.Create(vm.giftCard)
+        OrderCloud.SpendingAccounts.Create(vm.giftCard)
             .then(function() {
                 $state.go('giftCards', {}, {reload:true})
             })
@@ -150,7 +150,7 @@ function GiftCardCreateController($state, $exceptionHandler, GiftCardFactory, Sp
     }
 }
 
-function GiftCardAssignGroupController($q, UserGroupList, AssignedUserGroups, SelectedGiftCard, UserGroups, SpendingAccounts, Assignments) {
+function GiftCardAssignGroupController($q, OrderCloud, UserGroupList, AssignedUserGroups, SelectedGiftCard, Assignments) {
     var vm = this;
     vm.list = UserGroupList;
     vm.assignments = AssignedUserGroups;
@@ -159,7 +159,7 @@ function GiftCardAssignGroupController($q, UserGroupList, AssignedUserGroups, Se
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return SpendingAccounts.SaveAssignment({
+        return OrderCloud.SpendingAccounts.SaveAssignment({
             SpendingAccountID: vm.giftCard.ID,
             UserID: null,
             UserGroupID: ItemID,
@@ -168,7 +168,7 @@ function GiftCardAssignGroupController($q, UserGroupList, AssignedUserGroups, Se
     }
 
     function DeleteFunc(ItemID) {
-        return SpendingAccounts.DeleteAssignment(vm.giftCard.ID, null, ItemID);
+        return OrderCloud.SpendingAccounts.DeleteAssignment(vm.giftCard.ID, null, ItemID);
     }
 
     function SaveAssignments() {
@@ -179,9 +179,9 @@ function GiftCardAssignGroupController($q, UserGroupList, AssignedUserGroups, Se
         if (vm.list.Meta.Page < vm.list.Meta.PageSize) {
             var queue = [];
             var dfd = $q.defer();
-            queue.push(UserGroups.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'}));
+            queue.push(OrderCloud.UserGroups.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'}));
             if (vm.assignments.Meta.Page < vm.assignments.Meta.PageSize) {
-                SpendingAccounts.ListAssignments(vm.giftCard.ID, null, null, 'Group', vm.list.Meta.Page + 1, vm.list.Meta.PageSize);
+                OrderCloud.SpendingAccounts.ListAssignments(vm.giftCard.ID, null, null, 'Group', vm.list.Meta.Page + 1, vm.list.Meta.PageSize);
             }
             $q.all(queue).then(function(results) {
                 dfd.resolve();
@@ -196,7 +196,7 @@ function GiftCardAssignGroupController($q, UserGroupList, AssignedUserGroups, Se
     }
 }
 
-function GiftCardAssignUserController($q, UserList, AssignedUsers, SelectedGiftCard, Users, SpendingAccounts, Assignments) {
+function GiftCardAssignUserController($q, OrderCloud, UserList, AssignedUsers, SelectedGiftCard, Assignments) {
     var vm = this;
     vm.list = UserList;
     vm.assignments = AssignedUsers;
@@ -205,7 +205,7 @@ function GiftCardAssignUserController($q, UserList, AssignedUsers, SelectedGiftC
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return SpendingAccounts.SaveAssignment({
+        return OrderCloud.SpendingAccounts.SaveAssignment({
             SpendingAccountID: vm.giftCard.ID,
             UserID: ItemID,
             UserGroupID: null,
@@ -214,7 +214,7 @@ function GiftCardAssignUserController($q, UserList, AssignedUsers, SelectedGiftC
     }
 
     function DeleteFunc(ItemID) {
-        return SpendingAccounts.DeleteAssignment(vm.giftCard.ID, ItemID, null);
+        return OrderCloud.SpendingAccounts.DeleteAssignment(vm.giftCard.ID, ItemID, null);
     }
 
     function SaveAssignments() {
@@ -225,9 +225,9 @@ function GiftCardAssignUserController($q, UserList, AssignedUsers, SelectedGiftC
         if (vm.list.Meta.Page < vm.list.Meta.PageSize) {
             var queue = [];
             var dfd = $q.defer();
-            queue.push(Users.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'}));
+            queue.push(OrderCloud.Users.List(null, vm.list.Meta.Page + 1, vm.list.Meta.PageSize, null, null, {'RedemptionCode': '*'}));
             if (vm.assignments.Meta.Page < vm.assignments.Meta.PageSize) {
-                SpendingAccounts.ListAssignments(vm.giftCard.ID, null, null, 'User', vm.list.Meta.Page + 1, vm.list.Meta.PageSize);
+                OrderCloud.SpendingAccounts.ListAssignments(vm.giftCard.ID, null, null, 'User', vm.list.Meta.Page + 1, vm.list.Meta.PageSize);
             }
             $q.all(queue).then(function(results) {
                 dfd.resolve();

@@ -20,8 +20,8 @@ function SpendingAccountsConfig( $stateProvider ) {
             controllerAs: 'spendingAccounts',
             data: {componentName: 'Spending Accounts'},
             resolve: {
-                SpendingAccountList: function(SpendingAccounts) {
-                    return SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '!*'});
+                SpendingAccountList: function(OrderCloud) {
+                    return OrderCloud.SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '!*'});
                 }
             }
         })
@@ -31,8 +31,8 @@ function SpendingAccountsConfig( $stateProvider ) {
             controller:'SpendingAccountEditCtrl',
             controllerAs: 'spendingAccountEdit',
             resolve: {
-                SelectedSpendingAccount: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.spendingAccountid);
+                SelectedSpendingAccount: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.spendingAccountid);
                 }
             }
         })
@@ -48,14 +48,14 @@ function SpendingAccountsConfig( $stateProvider ) {
             controller: 'SpendingAccountAssignGroupCtrl',
             controllerAs: 'spendingAccountAssignGroup',
             resolve: {
-                UserGroupList: function(UserGroups) {
-                    return UserGroups.List();
+                UserGroupList: function(OrderCloud) {
+                    return OrderCloud.UserGroups.List();
                 },
-                AssignedUserGroups: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.ListAssignments($stateParams.spendingAccountid, null, null, 'Group');
+                AssignedUserGroups: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.ListAssignments($stateParams.spendingAccountid, null, null, 'Group');
                 },
-                SelectedSpendingAccount: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.spendingAccountid);
+                SelectedSpendingAccount: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.spendingAccountid);
                 }
             }
         })
@@ -65,37 +65,37 @@ function SpendingAccountsConfig( $stateProvider ) {
             controller: 'SpendingAccountAssignUserCtrl',
             controllerAs: 'spendingAccountAssignUser',
             resolve: {
-                UserList: function(Users) {
-                    return Users.List();
+                UserList: function(OrderCloud) {
+                    return OrderCloud.Users.List();
                 },
-                AssignedUsers: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.ListAssignments($stateParams.spendingAccountid, null, null, 'User');
+                AssignedUsers: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.ListAssignments($stateParams.spendingAccountid, null, null, 'User');
                 },
-                SelectedSpendingAccount: function($stateParams, SpendingAccounts) {
-                    return SpendingAccounts.Get($stateParams.spendingAccountid);
+                SelectedSpendingAccount: function($stateParams, OrderCloud) {
+                    return OrderCloud.SpendingAccounts.Get($stateParams.spendingAccountid);
                 }
             }
         });
 }
 
-function SpendingAccountsController( SpendingAccountList, SpendingAccounts ) {
+function SpendingAccountsController( SpendingAccountList, OrderCloud ) {
     var vm = this;
     vm.list = SpendingAccountList;
     vm.searchfunction = Search;
 
     function Search(searchTerm) {
-        return SpendingAccounts.List(searchTerm, null, null, null, null, {'RedemptionCode': '!*'});
+        return OrderCloud.SpendingAccounts.List(searchTerm, null, null, null, null, {'RedemptionCode': '!*'});
     }
 }
 
-function SpendingAccountEditController( $exceptionHandler, $state, SelectedSpendingAccount, SpendingAccounts ) {
+function SpendingAccountEditController( $exceptionHandler, $state, OrderCloud, SelectedSpendingAccount ) {
     var vm = this,
         spendingaccountid = SelectedSpendingAccount.ID;
     vm.spendingAccountName = SelectedSpendingAccount.Name;
     vm.spendingAccount = SelectedSpendingAccount;
 
     vm.Submit = function() {
-        SpendingAccounts.Update(spendingaccountid, vm.spendingAccount)
+        OrderCloud.SpendingAccounts.Update(spendingaccountid, vm.spendingAccount)
             .then(function() {
                 $state.go('spendingAccounts', {}, {reload:true})
             })
@@ -105,7 +105,7 @@ function SpendingAccountEditController( $exceptionHandler, $state, SelectedSpend
     };
 
     vm.Delete = function() {
-        SpendingAccounts.Delete(spendingaccountid)
+        OrderCloud.SpendingAccounts.Delete(spendingaccountid)
             .then(function() {
                 $state.go('spendingAccounts', {}, {reload:true})
             })
@@ -115,12 +115,12 @@ function SpendingAccountEditController( $exceptionHandler, $state, SelectedSpend
     }
 }
 
-function SpendingAccountCreateController( $exceptionHandler, $state, SpendingAccounts ) {
+function SpendingAccountCreateController( $exceptionHandler, $state, OrderCloud ) {
     var vm = this;
     vm.spendingAccount = {};
 
     vm.Submit = function() {
-        SpendingAccounts.Create(vm.spendingAccount)
+        OrderCloud.SpendingAccounts.Create(vm.spendingAccount)
             .then(function() {
                 $state.go('spendingAccounts', {}, {reload:true})
             })
@@ -176,7 +176,7 @@ function SpendingAccountAssignUserController($scope, UserList, AssignedUsers, Se
     }
 }
 
-function SpendingAccountAssignment($q, $state, $injector, Underscore, Assignments, SpendingAccounts) {
+function SpendingAccountAssignment($q, $state, $injector, Underscore, OrderCloud, Assignments) {
     return {
         saveAssignments: SaveAssignments,
         setSelected: SetSelected,
@@ -211,9 +211,9 @@ function SpendingAccountAssignment($q, $state, $injector, Underscore, Assignment
         });
         angular.forEach(toDelete, function(itemID) {
             if (Party === 'User') {
-                queue.push(SpendingAccounts.DeleteAssignment(SpendingAccountID, itemID, null));
+                queue.push(OrderCloud.SpendingAccounts.DeleteAssignment(SpendingAccountID, itemID, null));
             }
-            else queue.push(SpendingAccounts.DeleteAssignment(SpendingAccountID, null, itemID));
+            else queue.push(OrderCloud.SpendingAccounts.DeleteAssignment(SpendingAccountID, null, itemID));
         });
         $q.all(queue).then(function() {
             dfd.resolve();
@@ -233,7 +233,7 @@ function SpendingAccountAssignment($q, $state, $injector, Underscore, Assignment
             assignment.UserID = item.ID;
         }
         else assignment.UserGroupID = item.ID;
-        queue.push(SpendingAccounts.SaveAssignment(assignment));
+        queue.push(OrderCloud.SpendingAccounts.SaveAssignment(assignment));
     }
 
     function SetSelected(List, AssignmentList, Party) {
@@ -250,7 +250,7 @@ function SpendingAccountAssignment($q, $state, $injector, Underscore, Assignment
         });
     }
 
-    function Paging(SpendingAccountID, ListObjects, AssignmentObjects, Party) {
+    function Paging(SpendingAccountID, OrderCloud, ListObjects, AssignmentObjects, Party) {
         var ServiceName = (Party === 'User') ? 'Users' : 'UserGroups';
         var Level = (Party === 'User') ? 'User' : 'Group';
         var Service = $injector.get(ServiceName);
@@ -259,7 +259,7 @@ function SpendingAccountAssignment($q, $state, $injector, Underscore, Assignment
             var dfd = $q.defer();
             queue.push(Service.List(null, ListObjects.Meta.Page + 1, ListObjects.Meta.PageSize));
             if (AssignmentObjects.Meta.Page < AssignmentObjects.Meta.TotalPages) {
-                queue.push(SpendingAccounts.ListAssignments(SpendingAccountID, null, null, Level, AssignmentObjects.Meta.Page + 1, AssignmentObjects.Meta.PageSize));
+                queue.push(OrderCloud.SpendingAccounts.ListAssignments(SpendingAccountID, null, null, Level, AssignmentObjects.Meta.Page + 1, AssignmentObjects.Meta.PageSize));
             }
             $q.all(queue).then(function(results) {
                 dfd.resolve();

@@ -1,10 +1,11 @@
 describe('Component: PriceSchedules', function() {
     var scope,
         q,
-        priceSchedule;
+        priceSchedule,
+        oc;
     beforeEach(module('orderCloud'));
     beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(inject(function($q, $rootScope,OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         priceSchedule = {
@@ -17,36 +18,37 @@ describe('Component: PriceSchedules', function() {
             UseCumulativeQuantity: false,
             RestrictedQuantity: false,
             OrderType: "Standard",
-        PriceBreaks: [
-                {
-                    Quantity: 1,
-                    Price: 5.0
-                }
-            ]
+            PriceBreaks: [
+                    {
+                        Quantity: 1,
+                        Price: 5.0
+                    }
+                ]
         };
+        oc = OrderCloud;
     }));
 
     describe('State: priceSchedules', function() {
         var state;
-        beforeEach(inject(function($state, PriceSchedules) {
+        beforeEach(inject(function($state) {
             state = $state.get('priceSchedules');
-            spyOn(PriceSchedules, 'List').and.returnValue(null);
+            spyOn(oc.PriceSchedules, 'List').and.returnValue(null);
         }));
-        it('should resolve PriceScheduleList', inject(function ($injector, PriceSchedules) {
+        it('should resolve PriceScheduleList', inject(function ($injector) {
             $injector.invoke(state.resolve.PriceScheduleList);
-            expect(PriceSchedules.List).toHaveBeenCalled();
+            expect(oc.PriceSchedules.List).toHaveBeenCalled();
         }));
     });
 
     describe('State: priceSchedules.edit', function() {
         var state;
-        beforeEach(inject(function($state, PriceSchedules) {
+        beforeEach(inject(function($state) {
             state = $state.get('priceSchedules.edit');
-            spyOn(PriceSchedules, 'Get').and.returnValue(null);
+            spyOn(oc.PriceSchedules, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedPriceSchedule', inject(function ($injector, $stateParams, PriceSchedules) {
+        it('should resolve SelectedPriceSchedule', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedPriceSchedule);
-            expect(PriceSchedules.Get).toHaveBeenCalledWith($stateParams.priceScheduleid);
+            expect(oc.PriceSchedules.Get).toHaveBeenCalledWith($stateParams.priceScheduleid);
         }));
     });
 
@@ -77,34 +79,34 @@ describe('Component: PriceSchedules', function() {
         });
 
         describe('Submit', function() {
-            beforeEach(inject(function(PriceSchedules) {
+            beforeEach(function() {
                 priceScheduleEditCtrl.priceSchedule = priceSchedule;
                 priceScheduleEditCtrl.priceScheduleID = "TestPriceSchedule123456789";
                 var defer = q.defer();
                 defer.resolve(priceSchedule);
-                spyOn(PriceSchedules, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.PriceSchedules, 'Update').and.returnValue(defer.promise);
                 priceScheduleEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the PriceSchedules Update method', inject(function(PriceSchedules) {
-                expect(PriceSchedules.Update).toHaveBeenCalledWith(priceScheduleEditCtrl.priceScheduleID, priceScheduleEditCtrl.priceSchedule);
-            }));
+            });
+            it ('should call the PriceSchedules Update method', function() {
+                expect(oc.PriceSchedules.Update).toHaveBeenCalledWith(priceScheduleEditCtrl.priceScheduleID, priceScheduleEditCtrl.priceSchedule);
+            });
             it ('should enter the priceSchedules state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('priceSchedules', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(PriceSchedules) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(priceSchedule);
-                spyOn(PriceSchedules, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.PriceSchedules, 'Delete').and.returnValue(defer.promise);
                 priceScheduleEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the PriceSchedules Delete method', inject(function(PriceSchedules) {
-                expect(PriceSchedules.Delete).toHaveBeenCalledWith(priceSchedule.ID);
-            }));
+            });
+            it ('should call the PriceSchedules Delete method', function() {
+                expect(oc.PriceSchedules.Delete).toHaveBeenCalledWith(priceSchedule.ID);
+            });
             it ('should enter the priceSchedules state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('priceSchedules', {}, {reload:true});
             }));
@@ -136,17 +138,17 @@ describe('Component: PriceSchedules', function() {
         });
 
         describe('Submit', function() {
-            beforeEach(inject(function(PriceSchedules) {
+            beforeEach(function() {
                 priceScheduleCreateCtrl.priceSchedule = priceSchedule;
                 var defer = q.defer();
                 defer.resolve(priceSchedule);
-                spyOn(PriceSchedules, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.PriceSchedules, 'Create').and.returnValue(defer.promise);
                 priceScheduleCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the PriceSchedules Create method', inject(function(PriceSchedules) {
-                expect(PriceSchedules.Create).toHaveBeenCalledWith(priceSchedule);
-            }));
+            });
+            it ('should call the PriceSchedules Create method', function() {
+                expect(oc.PriceSchedules.Create).toHaveBeenCalledWith(priceSchedule);
+            });
             it ('should enter the priceSchedules state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('priceSchedules', {}, {reload:true});
             }));

@@ -1,10 +1,11 @@
 describe('Component: UserGroups', function() {
     var scope,
         q,
-        userGroup;
+        userGroup,
+        oc;
     beforeEach(module('orderCloud'));
     beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         userGroup = {
@@ -13,17 +14,18 @@ describe('Component: UserGroups', function() {
             Description: "Test",
             IsReportingGroup: false
         };
+        oc = OrderCloud;
     }));
 
     describe('State: userGroups', function() {
         var state;
-        beforeEach(inject(function($state, UserGroups) {
+        beforeEach(inject(function($state) {
             state = $state.get('userGroups');
-            spyOn(UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
     });
 
@@ -31,33 +33,33 @@ describe('Component: UserGroups', function() {
         var state;
         beforeEach(inject(function($state, UserGroups) {
             state = $state.get('userGroups.edit');
-            spyOn(UserGroups, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedUserGroup', inject(function ($injector, $stateParams, UserGroups) {
+        it('should resolve SelectedUserGroup', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedUserGroup);
-            expect(UserGroups.Get).toHaveBeenCalledWith($stateParams.userGroupid);
+            expect(oc.UserGroups.Get).toHaveBeenCalledWith($stateParams.userGroupid);
         }));
     });
 
     describe('State: userGroups.assign', function() {
         var state;
-        beforeEach(inject(function($state, UserGroups, Users) {
+        beforeEach(inject(function($state) {
             state = $state.get('userGroups.assign');
-            spyOn(Users, 'List').and.returnValue(null);
-            spyOn(UserGroups, 'ListUserAssignments').and.returnValue(null);
-            spyOn(UserGroups, 'Get').and.returnValue(null);
+            spyOn(oc.Users, 'List').and.returnValue(null);
+            spyOn(oc.UserGroups, 'ListUserAssignments').and.returnValue(null);
+            spyOn(oc.UserGroups, 'Get').and.returnValue(null);
         }));
-        it('should resolve UserList', inject(function ($injector, Users) {
+        it('should resolve UserList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserList);
-            expect(Users.List).toHaveBeenCalled();
+            expect(oc.Users.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUsers', inject(function ($injector, $stateParams, UserGroups) {
+        it('should resolve AssignedUsers', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUsers);
-            expect(UserGroups.ListUserAssignments).toHaveBeenCalledWith($stateParams.userGroupid);
+            expect(oc.UserGroups.ListUserAssignments).toHaveBeenCalledWith($stateParams.userGroupid);
         }));
-        it('should resolve SelectedUserGroup', inject(function ($injector, $stateParams, UserGroups) {
+        it('should resolve SelectedUserGroup', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedUserGroup);
-            expect(UserGroups.Get).toHaveBeenCalledWith($stateParams.userGroupid);
+            expect(oc.UserGroups.Get).toHaveBeenCalledWith($stateParams.userGroupid);
         }));
     });
 
@@ -72,18 +74,18 @@ describe('Component: UserGroups', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(UserGroups) {
+            beforeEach(function() {
                 userGroupEditCtrl.userGroup = userGroup;
                 userGroupEditCtrl.groupID = userGroup.ID;
                 var defer = q.defer();
                 defer.resolve(userGroup);
-                spyOn(UserGroups, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.UserGroups, 'Update').and.returnValue(defer.promise);
                 userGroupEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the UserGroups Update method', inject(function(UserGroups) {
-                expect(UserGroups.Update).toHaveBeenCalledWith(userGroupEditCtrl.groupID, userGroupEditCtrl.userGroup);
-            }));
+            });
+            it ('should call the UserGroups Update method', function() {
+                expect(oc.UserGroups.Update).toHaveBeenCalledWith(userGroupEditCtrl.groupID, userGroupEditCtrl.userGroup);
+            });
             it ('should enter the userGroups state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('userGroups', {}, {reload:true});
             }));
@@ -100,17 +102,17 @@ describe('Component: UserGroups', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(UserGroups) {
+            beforeEach(function() {
                 userGroupCreateCtrl.userGroup = userGroup;
                 var defer = q.defer();
                 defer.resolve(userGroup);
-                spyOn(UserGroups, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.UserGroups, 'Create').and.returnValue(defer.promise);
                 userGroupCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the UserGroups Create method', inject(function(UserGroups) {
-                expect(UserGroups.Create).toHaveBeenCalledWith(userGroup);
-            }));
+            });
+            it ('should call the UserGroups Create method', function() {
+                expect(oc.UserGroups.Create).toHaveBeenCalledWith(userGroup);
+            });
             it ('should enter the userGroups state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('userGroups', {}, {reload:true});
             }));

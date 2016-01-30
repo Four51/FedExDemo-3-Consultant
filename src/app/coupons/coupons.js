@@ -20,8 +20,8 @@ function CouponsConfig( $stateProvider ) {
             controllerAs: 'coupons',
             data: {componentName: 'Coupons'},
             resolve: {
-                CouponList: function(Coupons) {
-                    return Coupons.List();
+                CouponList: function(OrderCloud) {
+                    return OrderCloud.Coupons.List();
                 }
             }
         })
@@ -31,9 +31,9 @@ function CouponsConfig( $stateProvider ) {
             controller:'CouponEditCtrl',
             controllerAs: 'couponEdit',
             resolve: {
-                SelectedCoupon: function($q, $stateParams, Coupons) {
+                SelectedCoupon: function($q, $stateParams, OrderCloud) {
                     var d = $q.defer();
-                    Coupons.Get($stateParams.couponid)
+                    OrderCloud.Coupons.Get($stateParams.couponid)
                         .then(function(coupon) {
                             if(coupon.StartDate != null)
                                 coupon.StartDate = new Date(coupon.StartDate);
@@ -57,17 +57,17 @@ function CouponsConfig( $stateProvider ) {
             controller: 'CouponAssignCtrl',
             controllerAs: 'couponAssign',
             resolve: {
-                Buyer: function(Buyers) {
-                    return Buyers.Get();
+                Buyer: function(OrderCloud) {
+                    return OrderCloud.Buyers.Get();
                 },
-                UserGroupList: function(UserGroups) {
-                    return UserGroups.List(null, 1, 20);
+                UserGroupList: function(OrderCloud) {
+                    return OrderCloud.UserGroups.List(null, 1, 20);
                 },
-                AssignedUserGroups: function($stateParams, Coupons) {
-                    return Coupons.ListAssignments($stateParams.couponid);
+                AssignedUserGroups: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.ListAssignments($stateParams.couponid);
                 },
-                SelectedCoupon: function($stateParams, Coupons) {
-                    return Coupons.Get($stateParams.couponid);
+                SelectedCoupon: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.Get($stateParams.couponid);
                 }
             }
         })
@@ -77,14 +77,14 @@ function CouponsConfig( $stateProvider ) {
             controller: 'CouponAssignProductCtrl',
             controllerAs: 'couponAssignProd',
             resolve: {
-                ProductList: function(Products) {
-                    return Products.List();
+                ProductList: function(OrderCloud) {
+                    return OrderCloud.Products.List();
                 },
-                ProductAssignments: function(Coupons, $stateParams) {
-                    return Coupons.ListProductAssignments($stateParams.couponid);
+                ProductAssignments: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.ListProductAssignments($stateParams.couponid);
                 },
-                SelectedCoupon: function($stateParams, Coupons) {
-                    return Coupons.Get($stateParams.couponid);
+                SelectedCoupon: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.Get($stateParams.couponid);
                 }
             }
         })
@@ -94,14 +94,14 @@ function CouponsConfig( $stateProvider ) {
             controller: 'CouponAssignCategoryCtrl',
             controllerAs: 'couponAssignCat',
             resolve: {
-                CategoryList: function(Categories) {
-                    return Categories.List();
+                CategoryList: function(OrderCloud) {
+                    return OrderCloud.Categories.List();
                 },
-                CategoryAssignments: function(Coupons, $stateParams) {
-                    return Coupons.ListCategoryAssignments($stateParams.couponid);
+                CategoryAssignments: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.ListCategoryAssignments($stateParams.couponid);
                 },
-                SelectedCoupon: function($stateParams, Coupons) {
-                    return Coupons.Get($stateParams.couponid);
+                SelectedCoupon: function($stateParams, OrderCloud) {
+                    return OrderCloud.Coupons.Get($stateParams.couponid);
                 }
             }
         });
@@ -115,14 +115,14 @@ function CouponsController( CouponList, TrackSearch ) {
     };
 }
 
-function CouponEditController( $exceptionHandler, $state, SelectedCoupon, Coupons ) {
+function CouponEditController( $exceptionHandler, $state, SelectedCoupon, OrderCloud ) {
     var vm = this,
         couponid = SelectedCoupon.ID;
     vm.couponName = SelectedCoupon.Label;
     vm.coupon = SelectedCoupon;
 
     vm.Submit = function() {
-        Coupons.Update(couponid, vm.coupon)
+        OrderCloud.Coupons.Update(couponid, vm.coupon)
             .then(function() {
                 $state.go('coupons', {}, {reload:true})
             })
@@ -132,7 +132,7 @@ function CouponEditController( $exceptionHandler, $state, SelectedCoupon, Coupon
     };
 
     vm.Delete = function() {
-        Coupons.Delete(SelectedCoupon.ID)
+        OrderCloud.Coupons.Delete(SelectedCoupon.ID)
             .then(function() {
                 $state.go('coupons', {}, {reload:true})
             })
@@ -142,7 +142,7 @@ function CouponEditController( $exceptionHandler, $state, SelectedCoupon, Coupon
     }
 }
 
-function CouponCreateController( $exceptionHandler, $state, Coupons) {
+function CouponCreateController( $exceptionHandler, $state, OrderCloud) {
     var vm = this;
     vm.coupon = {};
 
@@ -154,10 +154,10 @@ function CouponCreateController( $exceptionHandler, $state, Coupons) {
             code += possible.charAt(Math.floor(Math.random() * possible.length));
         }
         return code;
-    }
+    };
 
     vm.Submit = function() {
-        Coupons.Create(vm.coupon)
+        OrderCloud.Coupons.Create(vm.coupon)
             .then(function() {
                 $state.go('coupons', {}, {reload:true})
             })
@@ -167,7 +167,7 @@ function CouponCreateController( $exceptionHandler, $state, Coupons) {
     }
 }
 
-function CouponAssignController(Buyer, UserGroupList, AssignedUserGroups, SelectedCoupon, Coupons, Assignments, Paging) {
+function CouponAssignController(OrderCloud, Buyer, UserGroupList, AssignedUserGroups, SelectedCoupon, Assignments, Paging) {
     var vm = this;
     vm.coupon = SelectedCoupon;
     vm.buyer = Buyer;
@@ -177,7 +177,7 @@ function CouponAssignController(Buyer, UserGroupList, AssignedUserGroups, Select
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Coupons.SaveAssignment({
+        return OrderCloud.Coupons.SaveAssignment({
             UserID: null,
             UserGroupID: ItemID,
             CouponID: vm.coupon.ID
@@ -185,7 +185,7 @@ function CouponAssignController(Buyer, UserGroupList, AssignedUserGroups, Select
     }
 
     function DeleteFunc(ItemID) {
-        return Coupons.DeleteAssignment(vm.coupon.ID, null, ItemID);
+        return OrderCloud.Coupons.DeleteAssignment(vm.coupon.ID, null, ItemID);
     }
 
     function saveAssignments() {
@@ -193,7 +193,7 @@ function CouponAssignController(Buyer, UserGroupList, AssignedUserGroups, Select
     }
 
     function AssignmentFunc() {
-        return Coupons.ListAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
+        return OrderCloud.Coupons.ListAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {
@@ -201,7 +201,7 @@ function CouponAssignController(Buyer, UserGroupList, AssignedUserGroups, Select
     }
 }
 
-function CouponAssignProductController(ProductList, ProductAssignments, SelectedCoupon, Coupons, Assignments, Paging) {
+function CouponAssignProductController(OrderCloud, ProductList, ProductAssignments, SelectedCoupon, Assignments, Paging) {
     var vm = this;
     vm.list = ProductList;
     vm.assignments = ProductAssignments;
@@ -210,14 +210,14 @@ function CouponAssignProductController(ProductList, ProductAssignments, Selected
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Coupons.SaveProductAssignment({
+        return OrderCloud.Coupons.SaveProductAssignment({
             CouponID: vm.coupon.ID,
             ProductID: ItemID
         });
     }
 
     function DeleteFunc(ItemID) {
-        return Coupons.DeleteProductAssignment(vm.coupon.ID, ItemID);
+        return OrderCloud.Coupons.DeleteProductAssignment(vm.coupon.ID, ItemID);
     }
 
     function SaveAssignment() {
@@ -225,7 +225,7 @@ function CouponAssignProductController(ProductList, ProductAssignments, Selected
     }
 
     function AssignmentFunc() {
-        return Coupons.ListProductAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
+        return OrderCloud.Coupons.ListProductAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {
@@ -233,7 +233,7 @@ function CouponAssignProductController(ProductList, ProductAssignments, Selected
     }
 }
 
-function CouponAssignCategoryController(CategoryList, CategoryAssignments, SelectedCoupon, Coupons, Assignments, Paging) {
+function CouponAssignCategoryController(OrderCloud, CategoryList, CategoryAssignments, SelectedCoupon, Assignments, Paging) {
     var vm = this;
     vm.list = CategoryList;
     vm.assignments = CategoryAssignments;
@@ -242,14 +242,14 @@ function CouponAssignCategoryController(CategoryList, CategoryAssignments, Selec
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Coupons.SaveCategoryAssignment({
+        return OrderCloud.Coupons.SaveCategoryAssignment({
             CouponID: vm.coupon.ID,
             CategoryID: ItemID
         });
     }
 
     function DeleteFunc(ItemID) {
-        return Coupons.DeleteCategoryAssignment(vm.coupon.ID, ItemID);
+        return OrderCloud.Coupons.DeleteCategoryAssignment(vm.coupon.ID, ItemID);
     }
 
     function SaveAssignment() {
@@ -257,7 +257,7 @@ function CouponAssignCategoryController(CategoryList, CategoryAssignments, Selec
     }
 
     function AssignmentFunc() {
-        return Coupons.ListCategoryAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
+        return OrderCloud.Coupons.ListCategoryAssignments(vm.coupon.ID, null, vm.assignments.Meta.Page + 1, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {

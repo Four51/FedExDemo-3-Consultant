@@ -13,15 +13,11 @@ function CategoryConfig($stateProvider) {
             controller: 'CategoryCtrl',
             controllerAs: 'category',
             resolve: {
-                CategoryList: function(Me, ImpersonationService, $stateParams) {
-                    return ImpersonationService.Impersonation(function() {
-                        return Me.ListSubcategories($stateParams.categoryid);
-                    });
+                CategoryList: function(OrderCloud, $stateParams) {
+                    return OrderCloud.Me.ListSubcategories($stateParams.categoryid);
                 },
-                ProductList: function(Me, ImpersonationService, $stateParams) {
-                    return ImpersonationService.Impersonation(function() {
-                        return Me.ListProducts(null, $stateParams.categoryid);
-                    });
+                ProductList: function(OrderCloud, $stateParams) {
+                    return OrderCloud.Me.ListProducts(null, $stateParams.categoryid);
                 }
             }
         });

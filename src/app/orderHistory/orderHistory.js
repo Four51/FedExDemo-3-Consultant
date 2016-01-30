@@ -18,8 +18,8 @@ function OrderHistoryConfig( $stateProvider ) {
             controllerAs: 'orderHistory',
             data: {componentName: 'Order History'},
             resolve: {
-                OrderList: function(Orders) {
-                    return Orders.List('incoming');
+                OrderList: function(OrderCloud) {
+                    return OrderCloud.Orders.List('incoming');
                 }
             }
         })
@@ -63,7 +63,7 @@ function OrderHistoryDetailLineItemController( SelectedLineItem ) {
     vm.lineItem = SelectedLineItem;
 }
 
-function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, SpendingAccounts ) {
+function OrderHistoryFactory( $q, Underscore, OrderCloud ) {
     var service = {
         GetOrderDetails: _getOrderDetails,
         GetLineItemDetails: _getLineItemDetails
@@ -75,7 +75,7 @@ function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, Spend
         var lineItemQueue = [];
         var productQueue = [];
 
-        Orders.Get(orderID)
+        OrderCloud.Orders.Get(orderID)
             .then(function(data) {
                 order = data;
                 order.LineItems = [];
@@ -83,11 +83,11 @@ function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, Spend
             });
 
         function gatherLineItems() {
-            LineItems.List(orderID, 1, 100)
+            OrderCloud.LineItems.List(orderID, 1, 100)
                 .then(function(data) {
                     order.LineItems = order.LineItems.concat(data.Items);
                     for (var i = 2; i <= data.Meta.TotalPages; i++) {
-                        lineItemQueue.push(LineItems.List(orderID, i, 100));
+                        lineItemQueue.push(OrderCloud.LineItems.List(orderID, i, 100));
                     }
                     $q.all(lineItemQueue).then(function(results) {
                         angular.forEach(results, function(result) {
@@ -105,7 +105,7 @@ function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, Spend
                 productQueue.push((function() {
                     var d = $q.defer();
 
-                    Products.Get(productID)
+                    OrderCloud.Products.Get(productID)
                         .then(function(product) {
                             angular.forEach(Underscore.where(order.LineItems, {ProductID: product.ID}), function(item) {
                                 item.Product = product;
@@ -120,7 +120,7 @@ function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, Spend
 
             $q.all(productQueue).then(function() {
                 if (order.SpendingAccountID) {
-                    SpendingAccounts.Get(order.SpendingAccountID)
+                    OrderCloud.SpendingAccounts.Get(order.SpendingAccountID)
                         .then(function(sa) {
                             order.SpendingAccount = sa;
                             deferred.resolve(order);
@@ -139,14 +139,14 @@ function OrderHistoryFactory( $q, Underscore, Orders, LineItems, Products, Spend
         var deferred = $q.defer();
         var lineItem;
 
-        LineItems.Get(orderID, lineItemID)
+        OrderCloud.LineItems.Get(orderID, lineItemID)
             .then(function(li) {
                 lineItem = li;
                 getProduct();
             });
 
         function getProduct() {
-            Products.Get(lineItem.ProductID)
+            OrderCloud.Products.Get(lineItem.ProductID)
                 .then(function(product) {
                     lineItem.Product = product;
                     deferred.resolve(lineItem);

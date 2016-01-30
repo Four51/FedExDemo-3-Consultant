@@ -1,10 +1,11 @@
 describe('Component: Products', function() {
     var scope,
         q,
-        product;
+        product,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         product = {
@@ -21,63 +22,64 @@ describe('Component: Products', function() {
             AllowOrderExceedInventory: false,
             DisplayInventory: false
         };
+        oc = OrderCloud;
     }));
 
     describe('State: products', function() {
         var state;
-        beforeEach(inject(function($state, Products) {
+        beforeEach(inject(function($state) {
             state = $state.get('products', {}, {reload:true});
-            spyOn(Products, 'List').and.returnValue(null);
+            spyOn(oc.Products, 'List').and.returnValue(null);
         }));
-        it('should resolve ProductList', inject(function ($injector, Products) {
+        it('should resolve ProductList', inject(function ($injector) {
             $injector.invoke(state.resolve.ProductList);
-            expect(Products.List).toHaveBeenCalled();
+            expect(oc.Products.List).toHaveBeenCalled();
         }));
     });
 
     describe('State: products.edit', function() {
         var state;
-        beforeEach(inject(function($state, Products) {
+        beforeEach(inject(function($state) {
             state = $state.get('products.edit', {}, {reload:true});
-            spyOn(Products, 'Get').and.returnValue(null);
+            spyOn(oc.Products, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedProduct', inject(function ($injector, $stateParams, Products) {
+        it('should resolve SelectedProduct', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedProduct);
-            expect(Products.Get).toHaveBeenCalledWith($stateParams.productid);
+            expect(oc.Products.Get).toHaveBeenCalledWith($stateParams.productid);
         }));
     });
 
     describe('State: products.assignments', function() {
         var state;
-        beforeEach(inject(function($state, Products) {
+        beforeEach(inject(function($state) {
             state = $state.get('products.assignments', {}, {reload:true});
-            spyOn(Products, 'ListAssignments').and.returnValue(null);
-            spyOn(Products, 'Get').and.returnValue(null);
+            spyOn(oc.Products, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.Products, 'Get').and.returnValue(null);
         }));
-        it('should resolve Assignments', inject(function ($injector, $stateParams, Products) {
+        it('should resolve Assignments', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.Assignments);
-            expect(Products.ListAssignments).toHaveBeenCalledWith($stateParams.productid);
+            expect(oc.Products.ListAssignments).toHaveBeenCalledWith($stateParams.productid);
         }));
-        it('should resolve SelectedProduct', inject(function ($injector, $stateParams, Products) {
+        it('should resolve SelectedProduct', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedProduct);
-            expect(Products.Get).toHaveBeenCalledWith($stateParams.productid);
+            expect(oc.Products.Get).toHaveBeenCalledWith($stateParams.productid);
         }));
     });
 
     describe('State: products.createAssignment', function() {
         var state;
-        beforeEach(inject(function($state, UserGroups, PriceSchedules) {
+        beforeEach(inject(function($state) {
             state = $state.get('products.createAssignment', {}, {reload:true});
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(PriceSchedules, 'List').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.PriceSchedules, 'List').and.returnValue(null);
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve PriceScheduleList', inject(function ($injector, PriceSchedules) {
+        it('should resolve PriceScheduleList', inject(function ($injector) {
             $injector.invoke(state.resolve.PriceScheduleList);
-            expect(PriceSchedules.List).toHaveBeenCalled();
+            expect(oc.PriceSchedules.List).toHaveBeenCalled();
         }));
     });
 
@@ -92,34 +94,34 @@ describe('Component: Products', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(Products) {
+            beforeEach(function() {
                 productEditCtrl.product = product;
                 productEditCtrl.productID = "TestProduct123456789";
                 var defer = q.defer();
                 defer.resolve(product);
-                spyOn(Products, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.Products, 'Update').and.returnValue(defer.promise);
                 productEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the Products Update method', inject(function(Products) {
-                expect(Products.Update).toHaveBeenCalledWith(productEditCtrl.productID, productEditCtrl.product);
-            }));
+            });
+            it ('should call the Products Update method', function() {
+                expect(oc.Products.Update).toHaveBeenCalledWith(productEditCtrl.productID, productEditCtrl.product);
+            });
             it ('should enter the products state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('products', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(Products) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(product);
-                spyOn(Products, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.Products, 'Delete').and.returnValue(defer.promise);
                 productEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the Products Delete method', inject(function(Products) {
-                expect(Products.Delete).toHaveBeenCalledWith(product.ID);
-            }));
+            });
+            it ('should call the Products Delete method', function() {
+                expect(oc.Products.Delete).toHaveBeenCalledWith(product.ID);
+            });
             it ('should enter the products state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('products', {}, {reload:true});
             }));
@@ -136,17 +138,17 @@ describe('Component: Products', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(Products) {
+            beforeEach(function() {
                 productCreateCtrl.product = product;
                 var defer = q.defer();
                 defer.resolve(product);
-                spyOn(Products, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.Products, 'Create').and.returnValue(defer.promise);
                 productCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the Products Create method', inject(function(Products) {
-                expect(Products.Create).toHaveBeenCalledWith(product);
-            }));
+            });
+            it ('should call the Products Create method', function() {
+                expect(oc.Products.Create).toHaveBeenCalledWith(product);
+            });
             it ('should enter the products state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('products', {}, {reload:true});
             }));
@@ -164,17 +166,17 @@ describe('Component: Products', function() {
         }));
 
         describe('Delete', function() {
-            beforeEach(inject(function(Products) {
+            beforeEach(function() {
                 scope.assignment = {
                     UserGroupID: '42'
                 };
                 var defer = q.defer();
                 defer.resolve();
-                spyOn(Products, 'DeleteAssignment').and.returnValue(defer.promise);
+                spyOn(oc.Products, 'DeleteAssignment').and.returnValue(defer.promise);
                 productAssignmentsCtrl.Delete(scope);
-            }));
-            it ('should call the Product DeleteAssignment method', inject(function(Products, $stateParams) {
-                expect(Products.DeleteAssignment).toHaveBeenCalledWith($stateParams.productid, null, scope.assignment.UserGroupID);
+            });
+            it ('should call the Product DeleteAssignment method', inject(function($stateParams) {
+                expect(oc.Products.DeleteAssignment).toHaveBeenCalledWith($stateParams.productid, null, scope.assignment.UserGroupID);
             }));
         });
     });
@@ -218,10 +220,10 @@ describe('Component: Products', function() {
         });
 
         describe('submit', function() {
-            beforeEach(inject(function(Products) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve();
-                spyOn(Products, 'SaveAssignment').and.returnValue(defer.promise);
+                spyOn(oc.Products, 'SaveAssignment').and.returnValue(defer.promise);
                 productCreateAssignmentCtrl.model= {
                     ProductID: "TestProduct123456789",
                     BuyerID: "TestBuyer123456789",
@@ -230,11 +232,11 @@ describe('Component: Products', function() {
                 };
                 productCreateAssignmentCtrl.assignBuyer = true;
                 productCreateAssignmentCtrl.submit();
-            }));
+            });
 
-            it ('should call the Product SaveAssignment method', inject(function(Products) {
-                expect(Products.SaveAssignment).toHaveBeenCalledWith(productCreateAssignmentCtrl.model);
-            }));
+            it ('should call the Product SaveAssignment method', function() {
+                expect(oc.Products.SaveAssignment).toHaveBeenCalledWith(productCreateAssignmentCtrl.model);
+            });
         });
     });
 });

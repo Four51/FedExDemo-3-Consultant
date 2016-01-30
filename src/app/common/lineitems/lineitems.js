@@ -5,26 +5,48 @@ angular.module('ordercloud-lineitems', [])
 
 ;
 
-function LineItemFactory($q, $state, CurrentOrder, Orders, LineItems, $uibModal, $rootScope, Products, Addresses, Underscore) {
+function LineItemFactory($rootScope, $q, $state, $uibModal, Underscore, OrderCloud, CurrentOrder) {
     return {
-        SpecConvert: SpecConverter,
-        RemoveItem: DeleteLineItem,
+        SpecConvert: SpecConvert,
+        RemoveItem: RemoveItem,
         UpdateQuantity: UpdateQuantity,
-        GetProductInfo: GetProductInformation,
-        ClearShipper: ClearShipping,
+        GetProductInfo: GetProductInfo,
         CustomShipping: CustomShipping,
         UpdateShipping: UpdateShipping
     };
 
-    function DeleteLineItem(Order, LineItem) {
-        LineItems.Delete(Order.ID, LineItem.ID)
-            .then(function() {
+    function SpecConvert(specs) {
+        var results = [];
+        angular.forEach(specs, function (spec) {
+            var spec_to_push = {SpecID: spec.ID};
+            if (spec.Options.length > 0) {
+                if (spec.DefaultOptionID) {
+                    spec_to_push.OptionID = spec.DefaultOptionID;
+                }
+                if (spec.OptionID) {
+                    spec_to_push.OptionID = spec.OptionID;
+                }
+                if (spec.Value) {
+                    spec_to_push.Value = spec.Value;
+                }
+            }
+            else {
+                spec_to_push.Value = spec.Value || spec.DefaultValue || null;
+            }
+            results.push(spec_to_push);
+        });
+        return results;
+    }
+
+    function RemoveItem(Order, LineItem) {
+        OrderCloud.LineItems.Delete(Order.ID, LineItem.ID)
+            .then(function () {
                 // If all line items are removed delete the order.
-                LineItems.List(Order.ID)
-                    .then(function(data) {
+                OrderCloud.LineItems.List(Order.ID)
+                    .then(function (data) {
                         if (!data.Items.length) {
                             CurrentOrder.Remove();
-                            Orders.Delete(Order.ID).then(function() {
+                            OrderCloud.Orders.Delete(Order.ID).then(function () {
                                 $state.reload();
                             });
                         }
@@ -37,28 +59,24 @@ function LineItemFactory($q, $state, CurrentOrder, Orders, LineItems, $uibModal,
 
     function UpdateQuantity(Order, LineItem) {
         if (LineItem.Quantity > 0) {
-            LineItems.Patch(Order.ID, LineItem.ID, {Quantity: LineItem.Quantity})
-                .then(function() {
+            OrderCloud.LineItems.Patch(Order.ID, LineItem.ID, {Quantity: LineItem.Quantity})
+                .then(function () {
                     $rootScope.$broadcast('OC:UpdateOrder', Order.ID);
                 });
         }
     }
 
-    function ClearShipping(Order, LineItem) {
-
-    }
-
-    function GetProductInformation(LineItems) {
+    function GetProductInfo(LineItems) {
         var li = LineItems.Items || LineItems;
         var productIDs = Underscore.uniq(Underscore.pluck(li, 'ProductID'));
         var dfd = $q.defer();
         var queue = [];
-        angular.forEach(productIDs, function(productid) {
-            queue.push(Products.Get(productid));
+        angular.forEach(productIDs, function (productid) {
+            queue.push(OrderCloud.Me.GetProduct(productid));
         });
         $q.all(queue)
-            .then(function(results) {
-                angular.forEach(li, function(item) {
+            .then(function (results) {
+                angular.forEach(li, function (item) {
                     item.Product = angular.copy(Underscore.where(results, {ID: item.ProductID})[0]);
                 });
                 dfd.resolve(li);
@@ -76,56 +94,33 @@ function LineItemFactory($q, $state, CurrentOrder, Orders, LineItems, $uibModal,
         });
 
         modalInstance.result
-            .then(function(address) {
+            .then(function (address) {
                 address.ID = Math.floor(Math.random() * 1000000).toString();
-                LineItems.SetShippingAddress(Order.ID, LineItem.ID, address)
-                    .then(function() {
+                OrderCloud.LineItems.SetShippingAddress(Order.ID, LineItem.ID, address)
+                    .then(function () {
                         $rootScope.$broadcast('LineItemAddressUpdated', LineItem.ID, address);
                     });
             });
     }
 
     function UpdateShipping(Order, LineItem, AddressID) {
-        Addresses.Get(AddressID)
-            .then(function(address) {
-                LineItems.SetShippingAddress(Order.ID, LineItem.ID, address);
+        OrderCloud.Addresses.Get(AddressID)
+            .then(function (address) {
+                OrderCloud.LineItems.SetShippingAddress(Order.ID, LineItem.ID, address);
                 $rootScope.$broadcast('LineItemAddressUpdated', LineItem.ID, address);
             });
     }
-}
-
-function SpecConverter(specs) {
-    var results = [];
-    angular.forEach(specs, function (spec) {
-        var spec_to_push = {SpecID: spec.ID};
-        if (spec.Options.length > 0) {
-            if (spec.DefaultOptionID) {
-                spec_to_push.OptionID = spec.DefaultOptionID;
-            }
-            if (spec.OptionID) {
-                spec_to_push.OptionID = spec.OptionID;
-            }
-            if (spec.Value) {
-                spec_to_push.Value = spec.Value;
-            }
-        }
-        else {
-            spec_to_push.Value = spec.Value || spec.DefaultValue || null;
-        }
-        results.push(spec_to_push);
-    });
-    return results;
 }
 
 function LineItemModalController($uibModalInstance) {
     var vm = this;
     vm.address = {};
 
-    vm.submit = function() {
+    vm.submit = function () {
         $uibModalInstance.close(vm.address);
     };
 
-    vm.cancel = function() {
+    vm.cancel = function () {
         vm.address = {};
         $uibModalInstance.dismiss('cancel');
     };

@@ -1,10 +1,11 @@
 describe('Component: AdminUsers', function() {
     var scope,
         q,
-        adminUser;
+        adminUser,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         adminUser = {
@@ -14,7 +15,8 @@ describe('Component: AdminUsers', function() {
             "Password": "Fails345",
             "FirstName": "Test",
             "LastName": "Test"
-        }
+        };
+        oc = OrderCloud;
     }));
 
     describe('Controller: AdminUserCreateCtrl', function() {
@@ -27,17 +29,17 @@ describe('Component: AdminUsers', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(AdminUsers) {
+            beforeEach(function() {
                 adminUserCreateCtrl.adminUser = adminUser;
                 var defer = q.defer();
                 defer.resolve(adminUser);
-                spyOn(AdminUsers, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.AdminUsers, 'Create').and.returnValue(defer.promise);
                 adminUserCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the AdminUsers Create method', inject(function(AdminUsers) {
-                expect(AdminUsers.Create).toHaveBeenCalledWith(adminUser);
-            }));
+            });
+            it ('should call the AdminUsers Create method', function() {
+                expect(oc.AdminUsers.Create).toHaveBeenCalledWith(adminUser);
+            });
             it ('should enter the adminUsers state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('adminUsers', {}, {reload:true});
             }));
@@ -55,34 +57,34 @@ describe('Component: AdminUsers', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(AdminUsers) {
+            beforeEach(function() {
                 adminUserEditCtrl.adminUser = adminUser;
                 adminUserEditCtrl.adminUserID = "TestAdminUser123456789";
                 var defer = q.defer();
                 defer.resolve(adminUser);
-                spyOn(AdminUsers, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.AdminUsers, 'Update').and.returnValue(defer.promise);
                 adminUserEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the AdminUsers Update method', inject(function(AdminUsers) {
-                expect(AdminUsers.Update).toHaveBeenCalledWith(adminUserEditCtrl.adminUserID, adminUser);
-            }));
+            });
+            it ('should call the AdminUsers Update method', function() {
+                expect(oc.AdminUsers.Update).toHaveBeenCalledWith(adminUserEditCtrl.adminUserID, adminUser);
+            });
             it ('should enter the adminUsers state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('adminUsers', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(AdminUsers) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(adminUser);
-                spyOn(AdminUsers, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.AdminUsers, 'Delete').and.returnValue(defer.promise);
                 adminUserEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the AdminUsers Delete method', inject(function(AdminUsers) {
-                expect(AdminUsers.Delete).toHaveBeenCalledWith(adminUser.ID);
-            }));
+            });
+            it ('should call the AdminUsers Delete method', function() {
+                expect(oc.AdminUsers.Delete).toHaveBeenCalledWith(adminUser.ID);
+            });
             it ('should enter the adminUsers state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('adminUsers', {}, {reload:true});
             }));

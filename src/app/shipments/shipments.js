@@ -17,8 +17,8 @@ function ShipmentsConfig( $stateProvider ) {
             controllerAs: 'shipments',
             data: {componentName: 'Shipments'},
             resolve: {
-                ShipmentList: function(Shipments) {
-                    return Shipments.List();
+                ShipmentList: function(OrderCloud) {
+                    return OrderCloud.Shipments.List();
                 }
             }
         })
@@ -28,11 +28,11 @@ function ShipmentsConfig( $stateProvider ) {
             controller:'ShipmentEditCtrl',
             controllerAs: 'shipmentEdit',
             resolve: {
-                SelectedShipment: function($stateParams, Shipments) {
-                    return Shipments.Get($stateParams.shipmentid);
+                SelectedShipment: function($stateParams, OrderCloud) {
+                    return OrderCloud.Shipments.Get($stateParams.shipmentid);
                 },
-                OrderList: function(Orders) {
-                    return Orders.List('incoming');
+                OrderList: function(OrderCloud) {
+                    return OrderCloud.Orders.List('incoming');
                 }
             }
         })
@@ -42,8 +42,8 @@ function ShipmentsConfig( $stateProvider ) {
             controller:'ShipmentCreateCtrl',
             controllerAs: 'shipmentCreate',
             resolve: {
-                OrderList: function(Orders) {
-                    return Orders.List('incoming');
+                OrderList: function(OrderCloud) {
+                    return OrderCloud.Orders.List('incoming');
                 }
             }
         })
@@ -54,7 +54,7 @@ function ShipmentsController( ShipmentList ) {
     vm.list = ShipmentList;
 }
 
-function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Shipments, OrderList, LineItems) {
+function ShipmentEditController( $exceptionHandler, $state, OrderCloud, SelectedShipment, OrderList) {
     var vm = this,
         shipmentid = SelectedShipment.ID;
     vm.ShipmentID = SelectedShipment.ID;
@@ -71,7 +71,7 @@ function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Sh
 
     vm.goToLineItems = function(order) {
         vm.OrderSelected = order.ID;
-        LineItems.List(vm.OrderSelected, 1, 20)
+        OrderCloud.LineItems.List(vm.OrderSelected, 1, 20)
             .then(function(data){
                 vm.lineitems.list = data;
                 angular.forEach(vm.lineitems.list.Items, function(li) {
@@ -93,7 +93,7 @@ function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Sh
 
     vm.deleteLineItem = function(index) {
         vm.shipment.Items.splice(index, 1);
-        Shipments.Patch(shipmentid, {Items: vm.shipment.Items});
+        OrderCloud.Shipments.Patch(shipmentid, {Items: vm.shipment.Items});
         if (vm.lineitems.list.Items) {
             vm.lineitems.list.Items[index].addToShipment = false;
             vm.lineitems.list.Items[index].disabled = false;
@@ -106,7 +106,7 @@ function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Sh
                 vm.shipment.Items.push({OrderID: li.OrderID, LineItemId: li.ID, QuantityShipped: li.QuantityShipped});
             }
         });
-        Shipments.Update(shipmentid, vm.shipment)
+        OrderCloud.Shipments.Update(shipmentid, vm.shipment)
             .then(function() {
                 $state.go('shipments', {}, {reload:true});
             })
@@ -116,7 +116,7 @@ function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Sh
     };
 
     vm.Delete = function() {
-        Shipments.Delete(shipmentid, false)
+        OrderCloud.Shipments.Delete(shipmentid, false)
             .then(function() {
                 $state.go('shipments', {}, {reload:true});
             })
@@ -126,11 +126,11 @@ function ShipmentEditController( $exceptionHandler, $state, SelectedShipment, Sh
     };
 
     function PagingFunction() {
-        LineItems.List(vm.OrderSelected, vm.lineitems.list.Meta.Page + 1, vm.lineitems.list.Meta.PageSize);
+        OrderCloud.LineItems.List(vm.OrderSelected, vm.lineitems.list.Meta.Page + 1, vm.lineitems.list.Meta.PageSize);
     }
 }
 
-function ShipmentCreateController( $exceptionHandler, $state, Shipments, OrderList, LineItems) {
+function ShipmentCreateController( $exceptionHandler, $state, OrderCloud, OrderList) {
     var vm = this;
     vm.shipment = {};
     vm.list = OrderList;
@@ -140,7 +140,7 @@ function ShipmentCreateController( $exceptionHandler, $state, Shipments, OrderLi
     vm.lineitems.list = [];
 
     vm.goToLineItems = function(order) {
-        LineItems.List(order.ID, 1, 20)
+        OrderCloud.LineItems.List(order.ID, 1, 20)
             .then(function(data){
                 vm.lineitems.list = data;
                 vm.OrderSelected = true;
@@ -161,7 +161,7 @@ function ShipmentCreateController( $exceptionHandler, $state, Shipments, OrderLi
                 vm.shipment.Items.push({OrderID: li.OrderID, LineItemId: li.ID, QuantityShipped: li.QuantityShipped});
             }
         });
-        Shipments.Create(vm.shipment)
+        OrderCloud.Shipments.Create(vm.shipment)
             .then(function() {
                 $state.go('shipments', {}, {reload:true})
             })

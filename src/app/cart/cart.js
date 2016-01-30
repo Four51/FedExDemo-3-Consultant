@@ -32,9 +32,9 @@ function CartConfig($stateProvider) {
                         });
                     return dfd.promise;
                 },
-                LineItemsList: function($q, $state, Order, Underscore, Me, LineItems, toastr, LineItemHelpers) {
+                LineItemsList: function($q, $state, Order, Underscore, OrderCloud, toastr, LineItemHelpers) {
                     var dfd = $q.defer();
-                    LineItems.Get(Order.ID)
+                    OrderCloud.LineItems.Get(Order.ID)
                         .then(function(data) {
                             if (!data.Items.length) {
                                 toastr.error("Your order does not contain any line items.", 'Error');
@@ -60,7 +60,7 @@ function CartConfig($stateProvider) {
         });
 }
 
-function CartController($q, $rootScope, Orders, Order, LineItemsList, LineItems, LineItemHelpers) {
+function CartController($q, $rootScope, OrderCloud, Order, LineItemsList, LineItemHelpers) {
     var vm = this;
     vm.order = Order;
     vm.lineItems = LineItemsList;
@@ -71,7 +71,7 @@ function CartController($q, $rootScope, Orders, Order, LineItemsList, LineItems,
     function PagingFunction() {
         var dfd = $q.defer();
         if (vm.lineItems.Meta.Page < vm.lineItems.Meta.TotalPages) {
-            LineItems.List(vm.order.ID, vm.lineItems.Meta.Page + 1, vm.lineItems.Meta.PageSize)
+            OrderCloud.LineItems.List(vm.order.ID, vm.lineItems.Meta.Page + 1, vm.lineItems.Meta.PageSize)
                 .then(function(data) {
                     vm.lineItems.Meta = data.Meta;
                     vm.lineItems.Items = [].concat(vm.lineItems.Items, data.Items);
@@ -86,14 +86,14 @@ function CartController($q, $rootScope, Orders, Order, LineItemsList, LineItems,
     }
 
     $rootScope.$on('OC:UpdateOrder', function(event, OrderID) {
-        Orders.Get(OrderID)
+        OrderCloud.Orders.Get(OrderID)
             .then(function(data) {
                 vm.order = data;
             });
     });
 }
 
-function MiniCartController($q, $rootScope, LineItems, LineItemHelpers, CurrentOrder) {
+function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, CurrentOrder) {
     var vm = this;
     vm.LineItems = {};
     vm.Order = null;
@@ -108,14 +108,14 @@ function MiniCartController($q, $rootScope, LineItems, LineItemHelpers, CurrentO
     function getLineItems(order) {
         var dfd = $q.defer();
         var queue = [];
-        LineItems.List(order.ID)
+        OrderCloud.LineItems.List(order.ID)
             .then(function(li) {
                 vm.LineItems = li;
                 if (li.Meta.TotalPages > li.Meta.Page) {
                     var page = li.Meta.Page;
                     while (page < li.Meta.TotalPages) {
                         page += 1;
-                        queue.push(LineItems.List(order.ID, page));
+                        queue.push(OrderCloud.LineItems.List(order.ID, page));
                     }
                 }
                 $q.all(queue)

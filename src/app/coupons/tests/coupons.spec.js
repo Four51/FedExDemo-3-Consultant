@@ -1,10 +1,11 @@
 describe('Component: Coupons', function() {
     var scope,
         q,
-        coupon;
+        coupon,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         coupon = {
@@ -25,17 +26,18 @@ describe('Component: Coupons', function() {
             ApplyToTax: false,
             Status: "Active"
         };
+        oc = OrderCloud;
     }));
 
     describe('State: coupons', function() {
         var state;
-        beforeEach(inject(function($state, Coupons) {
+        beforeEach(inject(function($state) {
             state = $state.get('coupons');
-            spyOn(Coupons, 'List').and.returnValue(null);
+            spyOn(oc.Coupons, 'List').and.returnValue(null);
         }));
-        it('should resolve CouponList', inject(function ($injector, Coupons) {
+        it('should resolve CouponList', inject(function ($injector) {
             $injector.invoke(state.resolve.CouponList);
-            expect(Coupons.List).toHaveBeenCalled();
+            expect(oc.Coupons.List).toHaveBeenCalled();
         }));
     });
 
@@ -45,82 +47,82 @@ describe('Component: Coupons', function() {
             state = $state.get('coupons.edit');
             var defer = q.defer();
             defer.resolve();
-            spyOn(Coupons, 'Get').and.returnValue(defer.promise);
+            spyOn(oc.Coupons, 'Get').and.returnValue(defer.promise);
         }));
-        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCoupon);
-            expect(Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
         }));
     });
 
     describe('State: coupons.assignParty', function() {
         var state;
-        beforeEach(inject(function($state, Coupons, UserGroups, Buyers) {
+        beforeEach(inject(function($state) {
             state = $state.get('coupons.assignParty');
-            spyOn(Buyers, 'Get').and.returnValue(null);
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(Coupons, 'ListAssignments').and.returnValue(null);
-            spyOn(Coupons, 'Get').and.returnValue(null);
+            spyOn(oc.Buyers, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.Coupons, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.Coupons, 'Get').and.returnValue(null);
         }));
-        it('should resolve Buyer', inject(function ($injector, Buyers) {
+        it('should resolve Buyer', inject(function ($injector) {
             $injector.invoke(state.resolve.Buyer);
-            expect(Buyers.Get).toHaveBeenCalled();
+            expect(oc.Buyers.Get).toHaveBeenCalled();
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUserGroups);
-            expect(Coupons.ListAssignments).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.ListAssignments).toHaveBeenCalledWith($stateParams.couponid);
         }));
-        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCoupon);
-            expect(Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
         }));
     });
 
     describe('State: coupons.assignProduct', function() {
         var state;
-        beforeEach(inject(function($state, Coupons, Products) {
+        beforeEach(inject(function($state) {
             state = $state.get('coupons.assignProduct');
-            spyOn(Products, 'List').and.returnValue(null);
-            spyOn(Coupons, 'Get').and.returnValue(null);
-            spyOn(Coupons, 'ListProductAssignments').and.returnValue(null);
+            spyOn(oc.Products, 'List').and.returnValue(null);
+            spyOn(oc.Coupons, 'Get').and.returnValue(null);
+            spyOn(oc.Coupons, 'ListProductAssignments').and.returnValue(null);
         }));
-        it('should resolve ProductList', inject(function ($injector, Products) {
+        it('should resolve ProductList', inject(function ($injector) {
             $injector.invoke(state.resolve.ProductList);
-            expect(Products.List).toHaveBeenCalled();
+            expect(oc.Products.List).toHaveBeenCalled();
         }));
-        it('should resolve ProductAssignments', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve ProductAssignments', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.ProductAssignments);
-            expect(Coupons.ListProductAssignments).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.ListProductAssignments).toHaveBeenCalledWith($stateParams.couponid);
         }));
-        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCoupon);
-            expect(Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
         }));
     });
 
     describe('State: coupons.assignCategory', function() {
         var state;
-        beforeEach(inject(function($state, Coupons, Categories) {
+        beforeEach(inject(function($state) {
             state = $state.get('coupons.assignCategory');
-            spyOn(Categories, 'List').and.returnValue(null);
-            spyOn(Coupons, 'Get').and.returnValue(null);
-            spyOn(Coupons, 'ListCategoryAssignments').and.returnValue(null);
+            spyOn(oc.Categories, 'List').and.returnValue(null);
+            spyOn(oc.Coupons, 'Get').and.returnValue(null);
+            spyOn(oc.Coupons, 'ListCategoryAssignments').and.returnValue(null);
         }));
-        it('should resolve CategoryList', inject(function ($injector, Categories) {
+        it('should resolve CategoryList', inject(function ($injector) {
             $injector.invoke(state.resolve.CategoryList);
-            expect(Categories.List).toHaveBeenCalled();
+            expect(oc.Categories.List).toHaveBeenCalled();
         }));
-        it('should resolve CategoryAssignments', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve CategoryAssignments', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.CategoryAssignments);
-            expect(Coupons.ListCategoryAssignments).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.ListCategoryAssignments).toHaveBeenCalledWith($stateParams.couponid);
         }));
-        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams, Coupons) {
+        it('should resolve SelectedCoupon', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCoupon);
-            expect(Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
+            expect(oc.Coupons.Get).toHaveBeenCalledWith($stateParams.couponid);
         }));
     });
 
@@ -135,34 +137,34 @@ describe('Component: Coupons', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(Coupons) {
+            beforeEach(function() {
                 couponEditCtrl.coupon = coupon;
                 couponEditCtrl.couponID = "TestCoupon123456789";
                 var defer = q.defer();
                 defer.resolve(coupon);
-                spyOn(Coupons, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.Coupons, 'Update').and.returnValue(defer.promise);
                 couponEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the Coupons Update method', inject(function(Coupons) {
-                expect(Coupons.Update).toHaveBeenCalledWith(couponEditCtrl.couponID, couponEditCtrl.coupon);
-            }));
+            });
+            it ('should call the Coupons Update method', function() {
+                expect(oc.Coupons.Update).toHaveBeenCalledWith(couponEditCtrl.couponID, couponEditCtrl.coupon);
+            });
             it ('should enter the coupons state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('coupons', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(Coupons) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(coupon);
-                spyOn(Coupons, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.Coupons, 'Delete').and.returnValue(defer.promise);
                 couponEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the Coupons Delete method', inject(function(Coupons) {
-                expect(Coupons.Delete).toHaveBeenCalledWith(coupon.ID);
-            }));
+            });
+            it ('should call the Coupons Delete method', function() {
+                expect(oc.Coupons.Delete).toHaveBeenCalledWith(coupon.ID);
+            });
             it ('should enter the coupons state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('coupons', {}, {reload:true});
             }));
@@ -189,17 +191,17 @@ describe('Component: Coupons', function() {
         });
 
         describe('Submit', function() {
-            beforeEach(inject(function(Coupons) {
+            beforeEach(function() {
                 couponCreateCtrl.coupon = coupon;
                 var defer = q.defer();
                 defer.resolve(coupon);
-                spyOn(Coupons, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.Coupons, 'Create').and.returnValue(defer.promise);
                 couponCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the Coupons Create method', inject(function(Coupons) {
-                expect(Coupons.Create).toHaveBeenCalledWith(coupon);
-            }));
+            });
+            it ('should call the Coupons Create method', function() {
+                expect(oc.Coupons.Create).toHaveBeenCalledWith(coupon);
+            });
             it ('should enter the coupons state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('coupons', {}, {reload:true});
             }));

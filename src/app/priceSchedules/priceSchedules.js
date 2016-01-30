@@ -17,8 +17,8 @@ function PriceSchedulesConfig( $stateProvider ) {
             controllerAs: 'priceSchedules',
             data: {componentName: 'Price Schedules'},
             resolve: {
-                PriceScheduleList: function(PriceSchedules) {
-                    return PriceSchedules.List();
+                PriceScheduleList: function(OrderCloud) {
+                    return OrderCloud.PriceSchedules.List();
                 }
             }
         })
@@ -28,8 +28,8 @@ function PriceSchedulesConfig( $stateProvider ) {
             controller:'PriceScheduleEditCtrl',
             controllerAs: 'priceScheduleEdit',
             resolve: {
-                SelectedPriceSchedule: function($stateParams, PriceSchedules) {
-                    return PriceSchedules.Get($stateParams.priceScheduleid);
+                SelectedPriceSchedule: function($stateParams, OrderCloud) {
+                    return OrderCloud.PriceSchedules.Get($stateParams.priceScheduleid);
                 }
             }
         })
@@ -46,7 +46,7 @@ function PriceSchedulesController( PriceScheduleList ) {
     vm.list = PriceScheduleList;
 }
 
-function PriceScheduleEditController( $exceptionHandler, $state, SelectedPriceSchedule, PriceSchedules, PriceBreak ) {
+function PriceScheduleEditController( $exceptionHandler, $state, OrderCloud, SelectedPriceSchedule, PriceBreak ) {
     var vm = this,
         priceScheduleid = angular.copy(SelectedPriceSchedule.ID);
     vm.priceScheduleName = angular.copy(SelectedPriceSchedule.Name);
@@ -63,7 +63,7 @@ function PriceScheduleEditController( $exceptionHandler, $state, SelectedPriceSc
 
     vm.Submit = function() {
         vm.priceSchedule = PriceBreak.setMinMax(vm.priceSchedule);
-        PriceSchedules.Update(priceScheduleid, vm.priceSchedule)
+        OrderCloud.PriceSchedules.Update(priceScheduleid, vm.priceSchedule)
             .then(function() {
                 $state.go('priceSchedules', {}, {reload:true})
             })
@@ -73,7 +73,7 @@ function PriceScheduleEditController( $exceptionHandler, $state, SelectedPriceSc
     };
 
     vm.Delete = function() {
-        PriceSchedules.Delete(priceScheduleid)
+        OrderCloud.PriceSchedules.Delete(priceScheduleid)
             .then(function() {
                 $state.go('priceSchedules', {}, {reload:true})
             })
@@ -83,7 +83,7 @@ function PriceScheduleEditController( $exceptionHandler, $state, SelectedPriceSc
     }
 }
 
-function PriceScheduleCreateController( $exceptionHandler, $state, PriceSchedules, PriceBreak) {
+function PriceScheduleCreateController( $exceptionHandler, $state, OrderCloud, PriceBreak) {
     var vm = this;
     vm.priceSchedule = {};
     vm.priceSchedule.RestrictedQuantity = false;
@@ -93,14 +93,13 @@ function PriceScheduleCreateController( $exceptionHandler, $state, PriceSchedule
         PriceBreak.addPriceBreak(vm.priceSchedule, vm.price, vm.quantity);
         vm.quantity = null;
         vm.price = null;
-    }
+    };
 
     vm.deletePriceBreak = PriceBreak.deletePriceBreak;
 
-
     vm.Submit = function() {
         vm.priceSchedule = PriceBreak.setMinMax(vm.priceSchedule);
-        PriceSchedules.Create(vm.priceSchedule)
+        OrderCloud.PriceSchedules.Create(vm.priceSchedule)
             .then(function() {
                 $state.go('priceSchedules', {}, {reload:true})
             })

@@ -1,11 +1,13 @@
 describe('Component: Checkout', function() {
     var scope,
         q,
+        oc,
         order;
     beforeEach(module('orderCloud'));
     beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function ($q, $rootScope) {
+    beforeEach(inject(function ($q, $rootScope, OrderCloud) {
         q = $q;
+        oc = OrderCloud;
         scope = $rootScope.$new();
         order = {
             ID: "TestOrder123456789",
@@ -24,34 +26,34 @@ describe('Component: Checkout', function() {
 
     describe('State: checkout', function () {
         var state;
-        beforeEach(inject(function ($state, CurrentOrder, ImpersonationService) {
+        beforeEach(inject(function ($state, CurrentOrder) {
             state = $state.get('checkout');
             var defer = q.defer();
             defer.resolve();
             spyOn(CurrentOrder, 'Get').and.returnValue(defer.promise);
-            spyOn(ImpersonationService, 'Impersonation').and.returnValue(defer.promise);
+            spyOn(oc.Me, 'ListAddresses').and.returnValue(defer.promise);
         }));
         it('should resolve Order', inject(function ($injector, CurrentOrder) {
             $injector.invoke(state.resolve.Order);
             expect(CurrentOrder.Get).toHaveBeenCalled();
         }));
-        it('should resolve ShippingAddresses', inject(function ($injector, ImpersonationService) {
+        it('should resolve ShippingAddresses', inject(function ($injector) {
             $injector.invoke(state.resolve.ShippingAddresses);
-            expect(ImpersonationService.Impersonation).toHaveBeenCalled();
+            expect(oc.Me.ListAddresses).toHaveBeenCalled();
         }));
     });
 
     describe('State: orderReview', function () {
         var state;
-        beforeEach(inject(function ($state, Orders) {
+        beforeEach(inject(function ($state) {
             state = $state.get('orderReview');
             var defer = q.defer();
             defer.resolve();
-            spyOn(Orders, 'Get').and.returnValue(defer.promise);
+            spyOn(oc.Orders, 'Get').and.returnValue(defer.promise);
         }));
-        it('should resolve SubmittedOrder', inject(function ($injector, $stateParams, Orders) {
+        it('should resolve SubmittedOrder', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SubmittedOrder);
-            expect(Orders.Get).toHaveBeenCalledWith($stateParams.orderid);
+            expect(oc.Orders.Get).toHaveBeenCalledWith($stateParams.orderid);
         }));
     });
 
@@ -66,18 +68,18 @@ describe('Component: Checkout', function() {
         }));
 
         describe('submitOrder', function () {
-            beforeEach(inject(function (Orders, CurrentOrder) {
+            beforeEach(inject(function (CurrentOrder) {
                 orderConfirmationCtrl.currentOrder = order;
                 var defer = q.defer();
                 defer.resolve(order);
-                spyOn(Orders, 'Submit').and.returnValue(defer.promise);
+                spyOn(oc.Orders, 'Submit').and.returnValue(defer.promise);
                 spyOn(CurrentOrder, 'Remove').and.returnValue(defer.promise);
                 orderConfirmationCtrl.submitOrder();
                 scope.$digest();
             }));
-            it('should call the Orders Submit method', inject(function (Orders) {
-                expect(Orders.Submit).toHaveBeenCalledWith(orderConfirmationCtrl.currentOrder.ID);
-            }));
+            it('should call the Orders Submit method', function () {
+                expect(oc.Orders.Submit).toHaveBeenCalledWith(orderConfirmationCtrl.currentOrder.ID);
+            });
             it('should call the CurrentOrder Remove method', inject(function (CurrentOrder) {
                 expect(CurrentOrder.Remove).toHaveBeenCalled();
             }));
@@ -89,7 +91,7 @@ describe('Component: Checkout', function() {
 
     describe('Controller: OrderReviewCtrl', function () {
         var orderReviewCtrl;
-        beforeEach(inject(function ($state, $controller, LineItemHelpers, LineItems) {
+        beforeEach(inject(function ($state, $controller, LineItemHelpers) {
             var defer = q.defer();
             var lidefer = q.defer();
             lidefer.resolve({
@@ -101,7 +103,7 @@ describe('Component: Checkout', function() {
                 Items: []
             })
             defer.resolve(order);
-            spyOn(LineItems, 'List').and.returnValue(lidefer.promise);
+            spyOn(oc.LineItems, 'List').and.returnValue(lidefer.promise);
             spyOn(LineItemHelpers, 'GetProductInfo').and.returnValue(defer.promise);
             orderReviewCtrl = $controller('OrderReviewCtrl', {
                 $scope: scope,
@@ -121,9 +123,9 @@ describe('Component: Checkout', function() {
             scope.$digest();
             expect(LineItemHelpers.GetProductInfo).toHaveBeenCalledWith(orderReviewCtrl.orderReviewCtrl.Items);
         }));
-        it ('should call the LineItems List method', inject(function(LineItems) {
-            expect(LineItems.List).toHaveBeenCalledWith(orderReviewCtrl.submittedOrder.ID);
-        }));
+        it ('should call the LineItems List method', function() {
+            expect(oc.LineItems.List).toHaveBeenCalledWith(orderReviewCtrl.submittedOrder.ID);
+        });
 
         describe('print', function () {
             beforeEach(inject(function () {
@@ -144,12 +146,12 @@ describe('Component: Checkout', function() {
             });
         }));
         describe('pagingfunction', function() {
-            beforeEach(inject(function(LineItems, LineItemHelpers) {
+            beforeEach(inject(function(LineItemHelpers) {
                 scope.order = order;
                 var defer = q.defer();
                 defer.resolve(order);
-                spyOn(LineItems, 'List').and.returnValue(defer.promise);
-                spyOn(LineItems, 'Get').and.returnValue(defer.promise);
+                spyOn(oc.LineItems, 'List').and.returnValue(defer.promise);
+                spyOn(oc.LineItems, 'Get').and.returnValue(defer.promise);
                 spyOn(LineItemHelpers, 'GetProductInfo').and.returnValue(defer.promise);
                 scope.$digest();
                 checkoutLICtrl.lineItems = {
@@ -162,16 +164,16 @@ describe('Component: Checkout', function() {
                 };
                 checkoutLICtrl.pagingfunction();
             }));
-            it ('should call the LineItems Get method', inject(function(LineItems) {
-                expect(LineItems.Get).toHaveBeenCalledWith(scope.order.ID);
-            }));
+            it ('should call the LineItems Get method', function() {
+                expect(oc.LineItems.Get).toHaveBeenCalledWith(scope.order.ID);
+            });
             it ('should call the LineItemHelpers GetProductInfo method', inject(function(LineItemHelpers) {
                 scope.$digest();
                 expect(LineItemHelpers.GetProductInfo).toHaveBeenCalledWith(checkoutLICtrl.lineItems.Items);
             }));
-            it ('should call the LineItems List method', inject(function(LineItems) {
-                expect(LineItems.List).toHaveBeenCalledWith(scope.order.ID, checkoutLICtrl.lineItems.Meta.Page +1, checkoutLICtrl.lineItems.Meta.PageSize);
-            }));
+            it ('should call the LineItems List method', function() {
+                expect(oc.LineItems.List).toHaveBeenCalledWith(scope.order.ID, checkoutLICtrl.lineItems.Meta.Page +1, checkoutLICtrl.lineItems.Meta.PageSize);
+            });
         });
     });
 
@@ -183,12 +185,12 @@ describe('Component: Checkout', function() {
             });
         }));
         describe('pagingfunction', function() {
-            beforeEach(inject(function(LineItems, LineItemHelpers) {
+            beforeEach(inject(function(LineItemHelpers) {
                 scope.order = order;
                 var defer = q.defer();
                 defer.resolve(order);
-                spyOn(LineItems, 'List').and.returnValue(defer.promise);
-                spyOn(LineItems, 'Get').and.returnValue(defer.promise);
+                spyOn(oc.LineItems, 'List').and.returnValue(defer.promise);
+                spyOn(oc.LineItems, 'Get').and.returnValue(defer.promise);
                 spyOn(LineItemHelpers, 'GetProductInfo').and.returnValue(defer.promise);
                 scope.$digest();
                 confirmationLICtrl.lineItems = {
@@ -201,16 +203,16 @@ describe('Component: Checkout', function() {
                 };
                 confirmationLICtrl.pagingfunction();
             }));
-            it ('should call the LineItems Get method', inject(function(LineItems) {
-                expect(LineItems.Get).toHaveBeenCalledWith(scope.order.ID);
-            }));
+            it ('should call the LineItems Get method', function() {
+                expect(oc.LineItems.Get).toHaveBeenCalledWith(scope.order.ID);
+            });
             it ('should call the LineItemHelpers GetProductInfo method', inject(function(LineItemHelpers) {
                 scope.$digest();
                 expect(LineItemHelpers.GetProductInfo).toHaveBeenCalledWith(confirmationLICtrl.lineItems.Items);
             }));
-            it ('should call the LineItems List method', inject(function(LineItems) {
-                expect(LineItems.List).toHaveBeenCalledWith(scope.order.ID, confirmationLICtrl.lineItems.Meta.Page +1, confirmationLICtrl.lineItems.Meta.PageSize);
-            }));
+            it ('should call the LineItems List method', function() {
+                expect(oc.LineItems.List).toHaveBeenCalledWith(scope.order.ID, confirmationLICtrl.lineItems.Meta.Page +1, confirmationLICtrl.lineItems.Meta.PageSize);
+            });
         });
     });
 

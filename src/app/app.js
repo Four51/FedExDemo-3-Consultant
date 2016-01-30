@@ -8,6 +8,7 @@ angular.module( 'orderCloud', [
 	'ui.router',
 	'ui.bootstrap',
 	'orderCloud.sdk',
+	'orderCloud.newsdk',
 	'toastr',
     'jcs-autoValidate',
     'ordercloud-infinite-scroll',
@@ -16,7 +17,6 @@ angular.module( 'orderCloud', [
     'ordercloud-assignment-helpers',
     'ordercloud-paging-helpers',
     'ordercloud-auto-id',
-    'ordercloud-impersonation',
     'ordercloud-current-order',
     'ordercloud-address',
     'ordercloud-lineitems',
@@ -30,8 +30,8 @@ angular.module( 'orderCloud', [
 	.controller( 'AppCtrl', AppCtrl )
 ;
 
-function SetBuyerID( BuyerID, buyerid ) {
-	BuyerID.Get() ? angular.noop() : BuyerID.Set(buyerid);
+function SetBuyerID( OrderCloud, buyerid ) {
+	OrderCloud.BuyerID.Get() ? angular.noop() : OrderCloud.BuyerID.Set(buyerid);
 }
 
 function Routing( $urlRouterProvider, $urlMatcherFactoryProvider ) {
@@ -51,28 +51,23 @@ function ErrorHandling( $provide ) {
 	}
 }
 
-function AppCtrl( $rootScope, $state, appname, Auth, BuyerID, ImpersonationService ) {
+function AppCtrl( $rootScope, $state, appname, OrderCloud ) {
 	var vm = this;
 	vm.name = appname;
 	vm.title = appname;
 	vm.showLeftNav = true;
+
 	vm.toggleLeftNav = function() {
 		vm.showLeftNav = !vm.showLeftNav;
 	};
+
 	vm.logout = function() {
-		Auth.RemoveToken();
-		BuyerID.Set(null);
-        ImpersonationService.StopImpersonating();
+		OrderCloud.Auth.RemoveToken();
+		OrderCloud.Auth.RemoveImpersonationToken();
+		OrderCloud.BuyerID.Set(null);
 		$state.go('login');
 	};
-    vm.EndImpersonation = ImpersonationService.StopImpersonating;
-    vm.isImpersonating = !!Auth.GetImpersonating();
-    $rootScope.$on('ImpersonationStarted', function() {
-        vm.isImpersonating = true;
-    });
-    $rootScope.$on('ImpersonationStopped', function() {
-        vm.isImpersonating = false;
-    });
+
 	$rootScope.$on('$stateChangeSuccess', function(e, toState) {
 		if (toState.data && toState.data.componentName) {
 			vm.title = appname + ' - ' + toState.data.componentName

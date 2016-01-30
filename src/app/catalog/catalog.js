@@ -33,10 +33,8 @@ function CatalogConfig($stateProvider) {
                 Tree: function(CatalogTreeService) {
                     return CatalogTreeService.GetCatalogTree();
                 },
-                Catalog: function($q, Me, ImpersonationService, Tree) {
-                    return ImpersonationService.Impersonation(function() {
-                        return Me.ListCategories(null, 1);
-                    });
+                Catalog: function($q, OrderCloud, Tree) {
+                    return OrderCloud.Me.ListCategories(null, 1);
                 },
                 Order: function($q, CurrentOrder, Tree) {
                     var dfd = $q.defer();
@@ -88,7 +86,7 @@ function ProductListDirective() {
     };
 }
 
-function CatalogTreeService($q, Underscore, ImpersonationService, Me) {
+function CatalogTreeService($q, Underscore, OrderCloud) {
     return {
         GetCatalogTree: tree
     };
@@ -96,15 +94,13 @@ function CatalogTreeService($q, Underscore, ImpersonationService, Me) {
     function tree() {
         var tree = [];
         var dfd = $q.defer();
-        ImpersonationService.Impersonation(function() {
-            Me.ListCategories(null, 'all', 1, 100)
-                .then(function(list) {
-                    angular.forEach(Underscore.where(list.Items, {ParentID: null}), function(node) {
-                        tree.push(getNode(node, list));
-                    });
-                    dfd.resolve(tree);
+        OrderCloud.Me.ListCategories(null, 'all', 1, 100)
+            .then(function(list) {
+                angular.forEach(Underscore.where(list.Items, {ParentID: null}), function(node) {
+                    tree.push(getNode(node, list));
                 });
-        });
+                dfd.resolve(tree);
+            });
         return dfd.promise;
     }
 

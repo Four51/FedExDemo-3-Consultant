@@ -15,7 +15,7 @@ function ProductListConfig($stateProvider) {
         });
 }
 
-function ProductListController($q, Me, ImpersonationService) {
+function ProductListController($q, OrderCloud) {
     var vm = this;
     vm.list = {
         Meta: {},
@@ -25,7 +25,7 @@ function ProductListController($q, Me, ImpersonationService) {
 
     function Search(searchTerm) {
         var dfd = $q.defer();
-        Me.ListProducts(searchTerm)
+        OrderCloud.Me.ListProducts(searchTerm)
             .then(function(data) {
                 dfd.resolve(data);
             });

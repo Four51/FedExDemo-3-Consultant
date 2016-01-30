@@ -16,8 +16,8 @@ function OrdersConfig( $stateProvider ) {
             controllerAs: 'orders',
             data: {componentName: 'Orders'},
             resolve: {
-                OrderList: function(Orders) {
-                    return Orders.List('incoming');
+                OrderList: function(OrderCloud) {
+                    return OrderCloud.Orders.List('incoming');
                 }
             }
         })
@@ -27,11 +27,11 @@ function OrdersConfig( $stateProvider ) {
             controller:'OrderEditCtrl',
             controllerAs: 'orderEdit',
             resolve: {
-                SelectedOrder: function($stateParams, Orders) {
-                    return Orders.Get($stateParams.orderid);
+                SelectedOrder: function($stateParams, OrderCloud) {
+                    return OrderCloud.Orders.Get($stateParams.orderid);
                 },
-                LineItemList: function($stateParams, LineItems) {
-                    return LineItems.List($stateParams.orderid);
+                LineItemList: function($stateParams, OrderCloud) {
+                    return OrderCloud.LineItems.List($stateParams.orderid);
                 }
             }
         })
@@ -43,7 +43,7 @@ function OrdersController(OrderList) {
     vm.list = OrderList;
 }
 
-function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTypeAheadSearchFactory, LineItemList, Orders, LineItems, $scope, $q, Users) {
+function OrderEditController( $scope, $q, $exceptionHandler, $state, OrderCloud, SelectedOrder, OrdersTypeAheadSearchFactory, LineItemList) {
     var vm = this,
     orderid = SelectedOrder.ID;
     vm.order = SelectedOrder;
@@ -55,7 +55,7 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
     $scope.isCollapsedShipping = true;
 
     vm.deleteLineItem = function(lineitem) {
-        LineItems.Delete(orderid, lineitem.ID)
+        OrderCloud.LineItems.Delete(orderid, lineitem.ID)
             .then(function() {
                 $state.go($state.current, {}, {reload: true});
             })
@@ -67,9 +67,9 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
     vm.updateBillingAddress = function(){
         vm.order.BillingAddressID = null;
         vm.order.BillingAddress.ID = null;
-        Orders.Update(orderid, vm.order)
+        OrderCloud.Orders.Update(orderid, vm.order)
             .then(function(){
-            Orders.SetBillingAddress(orderid, vm.order.BillingAddress)
+                OrderCloud.Orders.SetBillingAddress(orderid, vm.order.BillingAddress)
                 .then(function() {
                     $state.go($state.current, {}, {reload: true});
                 });
@@ -77,7 +77,7 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
     };
 
     vm.updateShippingAddress = function(){
-        Orders.SetShippingAddress(orderid, vm.ShippingAddress)
+        OrderCloud.Orders.SetShippingAddress(orderid, vm.ShippingAddress)
             //.then(function() {
             //    $state.go($state.current, {}, {reload: true});
             //});
@@ -88,13 +88,13 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
         var queue = [];
         angular.forEach(vm.list.Items, function(lineitem, index) {
             if ($scope.EditForm.LineItems['Quantity' + index].$dirty || $scope.EditForm.LineItems['UnitPrice' + index].$dirty ) {
-                queue.push(LineItems.Update(orderid, lineitem.ID, lineitem));
+                queue.push(OrderCloud.LineItems.Update(orderid, lineitem.ID, lineitem));
             }
         });
         $q.all(queue)
             .then(function() {
                 dfd.resolve();
-                Orders.Update(orderid, vm.order)
+                OrderCloud.Orders.Update(orderid, vm.order)
                     .then(function() {
                         $state.go('orders', {}, {reload:true});
                     })
@@ -110,7 +110,7 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
     };
 
     vm.Delete = function() {
-        Orders.Delete(orderid)
+        OrderCloud.Orders.Delete(orderid)
             .then(function() {
                 $state.go('orders', {}, {reload:true});
             })
@@ -121,7 +121,7 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
 
     function PagingFunction() {
         if (vm.list.Meta.Page < vm.list.Meta.PageSize) {
-            LineItems.List(vm.order.ID, vm.list.Meta.Page + 1, vm.list.Meta.PageSize).then(
+            OrderCloud.LineItems.List(vm.order.ID, vm.list.Meta.Page + 1, vm.list.Meta.PageSize).then(
                 function(data) {
                     vm.list.Meta = data.Meta;
                     vm.list.Items = [].concat(vm.list.Items, data.Items);
@@ -134,7 +134,7 @@ function OrderEditController( $exceptionHandler, $state, SelectedOrder, OrdersTy
     vm.billingAddressTypeAhead = OrdersTypeAheadSearchFactory.BillingAddressList;
 }
 
-function OrdersTypeAheadSearchFactory($q, SpendingAccounts, Addresses, Underscore) {
+function OrdersTypeAheadSearchFactory($q, OrderCloud, Underscore) {
     return {
         SpendingAccountList: SpendingAccountList,
         ShippingAddressList: ShippingAddressList,
@@ -142,7 +142,7 @@ function OrdersTypeAheadSearchFactory($q, SpendingAccounts, Addresses, Underscor
     };
 
     function SpendingAccountList(term) {
-        return SpendingAccounts.List(term).then(function(data) {
+        return OrderCloud.SpendingAccounts.List(term).then(function(data) {
             return data.Items;
         });
     }
@@ -150,8 +150,8 @@ function OrdersTypeAheadSearchFactory($q, SpendingAccounts, Addresses, Underscor
     function ShippingAddressList(term) {
         var dfd = $q.defer();
         var queue = [];
-        queue.push(Addresses.List(term));
-        queue.push(Addresses.ListAssignments(null, null, null, null, true));
+        queue.push(OrderCloud.Addresses.List(term));
+        queue.push(OrderCloud.Addresses.ListAssignments(null, null, null, null, true));
         $q.all(queue)
             .then(function(result) {
                 var searchAssigned = Underscore.intersection(Underscore.pluck(result[0].Items, 'ID'), Underscore.pluck(result[1].Items, 'AddressID'));
@@ -168,8 +168,8 @@ function OrdersTypeAheadSearchFactory($q, SpendingAccounts, Addresses, Underscor
     function BillingAddressList(term) {
         var dfd = $q.defer();
         var queue = [];
-        queue.push(Addresses.List(term));
-        queue.push(Addresses.ListAssignments(null, null, null, null, null, true));
+        queue.push(OrderCloud.Addresses.List(term));
+        queue.push(OrderCloud.Addresses.ListAssignments(null, null, null, null, null, true));
         $q.all(queue)
             .then(function(result) {
                 var searchAssigned = Underscore.intersection(Underscore.pluck(result[0].Items, 'ID'), Underscore.pluck(result[1].Items, 'AddressID'));

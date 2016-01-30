@@ -1,10 +1,11 @@
 describe('Component: CostCenters', function() {
     var scope,
         q,
-        costCenter;
+        costCenter,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         costCenter = {
@@ -12,60 +13,61 @@ describe('Component: CostCenters', function() {
             Name: "TestCostCenterTest",
             Description: "Test Cost Center Description"
         };
+        oc = OrderCloud;
     }));
 
     describe('State: costCenters', function() {
         var state;
-        beforeEach(inject(function($state, CostCenters) {
+        beforeEach(inject(function($state) {
             state = $state.get('costCenters');
-            spyOn(CostCenters, 'List').and.returnValue(null);
+            spyOn(oc.CostCenters, 'List').and.returnValue(null);
         }));
-        it('should resolve CostCenterList', inject(function ($injector, CostCenters) {
+        it('should resolve CostCenterList', inject(function ($injector) {
             $injector.invoke(state.resolve.CostCenterList);
-            expect(CostCenters.List).toHaveBeenCalled();
+            expect(oc.CostCenters.List).toHaveBeenCalled();
         }));
     });
 
     describe('State: costCenters.edit', function() {
         var state;
-        beforeEach(inject(function($state, CostCenters) {
+        beforeEach(inject(function($state) {
             state = $state.get('costCenters.edit');
             var defer = q.defer();
             defer.resolve();
-            spyOn(CostCenters, 'Get').and.returnValue(defer.promise);
+            spyOn(oc.CostCenters, 'Get').and.returnValue(defer.promise);
         }));
-        it('should resolve SelectedCostCenter', inject(function ($injector, $stateParams, CostCenters) {
+        it('should resolve SelectedCostCenter', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCostCenter);
-            expect(CostCenters.Get).toHaveBeenCalledWith($stateParams.costCenterid);
+            expect(oc.CostCenters.Get).toHaveBeenCalledWith($stateParams.costCenterid);
         }));
     });
 
     describe('State: costCenters.assign', function() {
         var state;
-        beforeEach(inject(function($state, CostCenters, UserGroups, Buyers) {
+        beforeEach(inject(function($state) {
             state = $state.get('costCenters.assign');
-            spyOn(Buyers, 'Get').and.returnValue(null);
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(CostCenters, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.Buyers, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.CostCenters, 'ListAssignments').and.returnValue(null);
             var defer = q.defer();
             defer.resolve();
-            spyOn(CostCenters, 'Get').and.returnValue(defer.promise);
+            spyOn(oc.CostCenters, 'Get').and.returnValue(defer.promise);
         }));
-        it('should resolve Buyer', inject(function ($injector, Buyers) {
+        it('should resolve Buyer', inject(function ($injector) {
             $injector.invoke(state.resolve.Buyer);
-            expect(Buyers.Get).toHaveBeenCalled();
+            expect(oc.Buyers.Get).toHaveBeenCalled();
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignmentsList', inject(function ($injector, $stateParams, CostCenters) {
+        it('should resolve AssignmentsList', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUserGroups);
-            expect(CostCenters.ListAssignments).toHaveBeenCalledWith($stateParams.costCenterid);
+            expect(oc.CostCenters.ListAssignments).toHaveBeenCalledWith($stateParams.costCenterid);
         }));
-        it('should resolve SelectedCostCenter', inject(function ($injector, $stateParams, CostCenters) {
+        it('should resolve SelectedCostCenter', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCostCenter);
-            expect(CostCenters.Get).toHaveBeenCalledWith($stateParams.costCenterid);
+            expect(oc.CostCenters.Get).toHaveBeenCalledWith($stateParams.costCenterid);
         }));
     });
 
@@ -80,34 +82,34 @@ describe('Component: CostCenters', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(CostCenters) {
+            beforeEach(function() {
                 costCenterEditCtrl.costCenter = costCenter;
                 costCenterEditCtrl.costCenterID = "TestCostCenter123456789";
                 var defer = q.defer();
                 defer.resolve(costCenter);
-                spyOn(CostCenters, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.CostCenters, 'Update').and.returnValue(defer.promise);
                 costCenterEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the CostCenters Update method', inject(function(CostCenters) {
-                expect(CostCenters.Update).toHaveBeenCalledWith(costCenterEditCtrl.costCenterID, costCenterEditCtrl.costCenter);
-            }));
+            });
+            it ('should call the CostCenters Update method', function() {
+                expect(oc.CostCenters.Update).toHaveBeenCalledWith(costCenterEditCtrl.costCenterID, costCenterEditCtrl.costCenter);
+            });
             it ('should enter the costCenters state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('costCenters', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(CostCenters) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(costCenter);
-                spyOn(CostCenters, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.CostCenters, 'Delete').and.returnValue(defer.promise);
                 costCenterEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the CostCenters Delete method', inject(function(CostCenters) {
-                expect(CostCenters.Delete).toHaveBeenCalledWith(costCenter.ID);
-            }));
+            });
+            it ('should call the CostCenters Delete method', function() {
+                expect(oc.CostCenters.Delete).toHaveBeenCalledWith(costCenter.ID);
+            });
             it ('should enter the costCenters state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('costCenters', {}, {reload:true});
             }));
@@ -124,17 +126,17 @@ describe('Component: CostCenters', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(CostCenters) {
+            beforeEach(function() {
                 costCenterCreateCtrl.costCenter = costCenter;
                 var defer = q.defer();
                 defer.resolve(costCenter);
-                spyOn(CostCenters, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.CostCenters, 'Create').and.returnValue(defer.promise);
                 costCenterCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the CostCenters Create method', inject(function(CostCenters) {
-                expect(CostCenters.Create).toHaveBeenCalledWith(costCenter);
-            }));
+            });
+            it ('should call the CostCenters Create method', function() {
+                expect(oc.CostCenters.Create).toHaveBeenCalledWith(costCenter);
+            });
             it ('should enter the costCenters state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('costCenters', {}, {reload:true});
             }));

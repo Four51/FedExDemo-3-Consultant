@@ -18,7 +18,7 @@ function OrderCloudOrderInputDirective() {
     };
 }
 
-function OrderInputController($state, appname, $scope, $rootScope, $localForage, Orders, LineItems, LineItemHelpers, CurrentOrder) {
+function OrderInputController($state, appname, $scope, $rootScope, $localForage, OrderCloud, LineItemHelpers, CurrentOrder) {
     var vm = this,
         orderid;
     vm.currentState = $state.current.name;
@@ -57,7 +57,7 @@ function OrderInputController($state, appname, $scope, $rootScope, $localForage,
                 AddLineItem(order, $scope.product);
             })
             .catch(function() {
-                Orders.Create({})
+                OrderCloud.Orders.Create({})
                     .then(function(order) {
                         CurrentOrder.Set(order.ID);
                         AddLineItem(order, $scope.product);
@@ -66,7 +66,7 @@ function OrderInputController($state, appname, $scope, $rootScope, $localForage,
     }
 
     function AddLineItem(order, product) {
-        LineItems.Create(order.ID, {
+        OrderCloud.LineItems.Create(order.ID, {
             ProductID: product.ID,
             Quantity: vm.Quantity,
             Specs: LineItemHelpers.SpecConvert(product.Specs)

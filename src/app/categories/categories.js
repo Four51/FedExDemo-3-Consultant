@@ -23,8 +23,8 @@ function CategoriesConfig( $stateProvider ) {
             controllerAs: 'categories',
             data: {componentName: 'Categories'},
             resolve: {
-                CategoryList: function(Categories) {
-                    return Categories.List(null, 'all');
+                CategoryList: function(OrderCloud) {
+                    return OrderCloud.Categories.List(null, 'all');
                 }
             }
         })
@@ -45,8 +45,8 @@ function CategoriesConfig( $stateProvider ) {
             controller:'CategoryEditCtrl',
             controllerAs: 'categoryEdit',
             resolve: {
-                SelectedCategory: function($stateParams, $state, Categories) {
-                    return Categories.Get($stateParams.categoryid).catch(function() {
+                SelectedCategory: function($stateParams, $state, OrderCloud) {
+                    return OrderCloud.Categories.Get($stateParams.categoryid).catch(function() {
                         $state.go('^.categories');
                     });
                 }
@@ -64,14 +64,14 @@ function CategoriesConfig( $stateProvider ) {
             controller: 'CategoryAssignPartyCtrl',
             controllerAs: 'categoryAssignParty',
             resolve: {
-                UserGroupList: function(UserGroups) {
-                    return UserGroups.List();
+                UserGroupList: function(OrderCloud) {
+                    return OrderCloud.UserGroups.List();
                 },
-                AssignedUserGroups: function($stateParams, Categories) {
-                    return Categories.ListAssignments($stateParams.categoryid);
+                AssignedUserGroups: function($stateParams, OrderCloud) {
+                    return OrderCloud.Categories.ListAssignments($stateParams.categoryid);
                 },
-                SelectedCategory: function($stateParams, $state, Categories) {
-                    return Categories.Get($stateParams.categoryid).catch(function() {
+                SelectedCategory: function($stateParams, $state, OrderCloud) {
+                    return OrderCloud.Categories.Get($stateParams.categoryid).catch(function() {
                         $state.go('^.categories');
                     });
                 }
@@ -83,14 +83,14 @@ function CategoriesConfig( $stateProvider ) {
             controller: 'CategoryAssignProductCtrl',
             controllerAs: 'categoryAssignProd',
             resolve: {
-                ProductList: function(Products) {
-                    return Products.List();
+                ProductList: function(OrderCloud) {
+                    return OrderCloud.Products.List();
                 },
-                ProductAssignments: function(Categories, $stateParams) {
-                    return Categories.ListProductAssignments($stateParams.categoryid);
+                ProductAssignments: function($stateParams, OrderCloud) {
+                    return OrderCloud.Categories.ListProductAssignments($stateParams.categoryid);
                 },
-                SelectedCategory: function($stateParams, $state, Categories) {
-                    return Categories.Get($stateParams.categoryid).catch(function() {
+                SelectedCategory: function($stateParams, $state, OrderCloud) {
+                    return OrderCloud.Categories.Get($stateParams.categoryid).catch(function() {
                         $state.go('^.categories');
                     });
                 }
@@ -106,14 +106,14 @@ function CategoriesController( CategoryList, TrackSearch ) {
     };
 }
 
-function CategoryEditController( $exceptionHandler, $state, SelectedCategory, Categories ) {
+function CategoryEditController( $exceptionHandler, $state, OrderCloud, SelectedCategory ) {
     var vm = this,
         categoryID = SelectedCategory.ID;
     vm.categoryName = SelectedCategory.Name;
     vm.category = SelectedCategory;
 
     vm.Submit = function() {
-        Categories.Update(categoryID, vm.category)
+        OrderCloud.Categories.Update(categoryID, vm.category)
             .then(function() {
                 $state.go('categories', {}, {reload:true})
             })
@@ -123,7 +123,7 @@ function CategoryEditController( $exceptionHandler, $state, SelectedCategory, Ca
     };
 
     vm.Delete = function() {
-        Categories.Delete(SelectedCategory.ID)
+        OrderCloud.Categories.Delete(SelectedCategory.ID)
             .then(function() {
                 $state.go('categories', {}, {reload:true})
             })
@@ -133,7 +133,7 @@ function CategoryEditController( $exceptionHandler, $state, SelectedCategory, Ca
     }
 }
 
-function CategoryCreateController($exceptionHandler,$state, Categories) {
+function CategoryCreateController($exceptionHandler,$state, OrderCloud) {
     var vm = this;
     vm.category = {};
 
@@ -141,7 +141,7 @@ function CategoryCreateController($exceptionHandler,$state, Categories) {
         if (vm.category.ParentID === '') {
             vm.category.ParentID = null;
         }
-        Categories.Create(vm.category)
+        OrderCloud.Categories.Create(vm.category)
             .then(function() {
                 $state.go('categories', {}, {reload:true})
             })
@@ -166,7 +166,7 @@ function CategoryTreeController(Tree, CategoryTreeService) {
     };
 }
 
-function CategoryAssignPartyController(Assignments, Paging, UserGroupList, AssignedUserGroups, SelectedCategory, Categories) {
+function CategoryAssignPartyController(OrderCloud, Assignments, Paging, UserGroupList, AssignedUserGroups, SelectedCategory) {
     var vm = this;
     vm.Category = SelectedCategory;
     vm.list = UserGroupList;
@@ -175,7 +175,7 @@ function CategoryAssignPartyController(Assignments, Paging, UserGroupList, Assig
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Categories.SaveAssignment({
+        return OrderCloud.Categories.SaveAssignment({
             UserID: null,
             UserGroupID: ItemID,
             CategoryID: vm.Category.ID
@@ -183,7 +183,7 @@ function CategoryAssignPartyController(Assignments, Paging, UserGroupList, Assig
     }
 
     function DeleteFunc(ItemID) {
-        return Categories.DeleteAssignment(vm.Category.ID, null, ItemID);
+        return OrderCloud.Categories.DeleteAssignment(vm.Category.ID, null, ItemID);
     }
 
     function SaveAssignment() {
@@ -191,7 +191,7 @@ function CategoryAssignPartyController(Assignments, Paging, UserGroupList, Assig
     }
 
     function AssignmentFunc() {
-        return Categories.ListAssignments(vm.Category.ID, null, vm.assignments.Meta.PageSize);
+        return OrderCloud.Categories.ListAssignments(vm.Category.ID, null, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {
@@ -199,7 +199,7 @@ function CategoryAssignPartyController(Assignments, Paging, UserGroupList, Assig
     }
 }
 
-function CategoryAssignProductController(Assignments, Paging, ProductList, ProductAssignments, SelectedCategory, Categories) {
+function CategoryAssignProductController(OrderCloud, Assignments, Paging, ProductList, ProductAssignments, SelectedCategory) {
     var vm = this;
     vm.Category = SelectedCategory;
     vm.list = ProductList;
@@ -208,14 +208,14 @@ function CategoryAssignProductController(Assignments, Paging, ProductList, Produ
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Categories.SaveProductAssignment({
+        return OrderCloud.Categories.SaveProductAssignment({
             CategoryID: vm.Category.ID,
             ProductID: ItemID
         });
     }
 
     function DeleteFunc(ItemID) {
-        return Categories.DeleteProductAssignment(vm.Category.ID, ItemID);
+        return OrderCloud.Categories.DeleteProductAssignment(vm.Category.ID, ItemID);
     }
 
     function SaveAssignment() {
@@ -223,7 +223,7 @@ function CategoryAssignProductController(Assignments, Paging, ProductList, Produ
     }
 
     function AssignmentFunc() {
-        return Categories.ListProductAssignments(vm.Category.ID, null, vm.assignments.Meta.PageSize);
+        return OrderCloud.Categories.ListProductAssignments(vm.Category.ID, null, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {
@@ -259,7 +259,7 @@ function CategoryNode($compile) {
     };
 }
 
-function CategoryTreeService($q, Underscore, Categories) {
+function CategoryTreeService($q, Underscore, OrderCloud) {
     return {
         GetCategoryTree: tree,
         UpdateCategoryNode: update
@@ -268,7 +268,7 @@ function CategoryTreeService($q, Underscore, Categories) {
     function tree() {
         var tree = [];
         var deferred = $q.defer();
-        Categories.List(null, 'all', 1, 100).then(function(list) {
+        OrderCloud.Categories.List(null, 'all', 1, 100).then(function(list) {
             angular.forEach(Underscore.where(list.Items, { ParentID: null}), function(node) {
                 tree.push(getnode(node));
             });
@@ -317,7 +317,7 @@ function CategoryTreeService($q, Underscore, Categories) {
                 nodeQueue = [];
             angular.forEach(nodeList,function(cat, index) {
                 nodeQueue.push((function() {
-                    return Categories.Patch(cat.ID, {ListOrder: index});
+                    return OrderCloud.Categories.Patch(cat.ID, {ListOrder: index});
                 }));
             });
 
@@ -347,7 +347,7 @@ function CategoryTreeService($q, Underscore, Categories) {
                 parentID = null;
             }
             event.source.nodeScope.node.ParentID = parentID;
-            Categories.Update(event.source.nodeScope.node.ID, event.source.nodeScope.node)
+            OrderCloud.Categories.Update(event.source.nodeScope.node.ID, event.source.nodeScope.node)
                 .then(function() {
                     deferred.resolve();
                 });

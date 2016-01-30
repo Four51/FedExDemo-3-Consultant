@@ -18,8 +18,8 @@ function SpecsConfig( $stateProvider ) {
             controllerAs: 'specs',
             data: {componentName: 'Specs'},
             resolve: {
-                SpecList: function(Specs) {
-                    return Specs.List();
+                SpecList: function(OrderCloud) {
+                    return OrderCloud.Specs.List();
                 }
             }
         })
@@ -29,8 +29,8 @@ function SpecsConfig( $stateProvider ) {
             controller:'SpecEditCtrl',
             controllerAs: 'specEdit',
             resolve: {
-                SelectedSpec: function($stateParams, Specs) {
-                    return Specs.Get($stateParams.specid);
+                SelectedSpec: function($stateParams, OrderCloud) {
+                    return OrderCloud.Specs.Get($stateParams.specid);
                 }
             }
         })
@@ -46,14 +46,14 @@ function SpecsConfig( $stateProvider ) {
             controller: 'SpecAssignCtrl',
             controllerAs: 'specAssign',
             resolve: {
-                ProductList: function (Products) {
-                    return Products.List(null, 1, 20);
+                ProductList: function (OrderCloud) {
+                    return OrderCloud.Products.List(null, 1, 20);
                 },
-                ProductAssignments: function ($stateParams, Specs) {
-                    return Specs.ListProductAssignments($stateParams.specid);
+                ProductAssignments: function ($stateParams, OrderCloud) {
+                    return OrderCloud.Specs.ListProductAssignments($stateParams.specid);
                 },
-                SelectedSpec: function ($stateParams, Specs) {
-                    return Specs.Get($stateParams.specid);
+                SelectedSpec: function ($stateParams, OrderCloud) {
+                    return OrderCloud.Specs.Get($stateParams.specid);
                 }
             }
         })
@@ -64,7 +64,7 @@ function SpecsController( SpecList ) {
     vm.list = SpecList;
 }
 
-function SpecEditController( $exceptionHandler, $state, SelectedSpec, Specs ) {
+function SpecEditController( $exceptionHandler, $state, OrderCloud, SelectedSpec ) {
     var vm = this,
         specid = angular.copy(SelectedSpec.ID);
     vm.specName = angular.copy(SelectedSpec.Name);
@@ -76,7 +76,7 @@ function SpecEditController( $exceptionHandler, $state, SelectedSpec, Specs ) {
         if (vm.DefaultOptionID) {
             vm.spec.DefaultOptionID = vm.Option.ID;
         }
-        Specs.CreateOption(specid, vm.Option)
+        OrderCloud.Specs.CreateOption(specid, vm.Option)
             .then(function() {
                     vm.Option = null;
                 })
@@ -87,11 +87,11 @@ function SpecEditController( $exceptionHandler, $state, SelectedSpec, Specs ) {
             vm.spec.DefaultOptionID = null;
         }
         vm.Options.splice($index, 1);
-        Specs.DeleteOption(specid, vm.spec.Options[$index].ID)
+        OrderCloud.Specs.DeleteOption(specid, vm.spec.Options[$index].ID)
     };
 
     vm.Submit = function() {
-        Specs.Update(specid, vm.spec)
+        OrderCloud.Specs.Update(specid, vm.spec)
             .then(function() {
                 $state.go('specs', {}, {reload:true})
             })
@@ -101,7 +101,7 @@ function SpecEditController( $exceptionHandler, $state, SelectedSpec, Specs ) {
     };
 
     vm.Delete = function() {
-        Specs.Delete(specid)
+        OrderCloud.Specs.Delete(specid)
             .then(function() {
                 $state.go('specs', {}, {reload:true})
             })
@@ -111,7 +111,7 @@ function SpecEditController( $exceptionHandler, $state, SelectedSpec, Specs ) {
     }
 }
 
-function SpecCreateController( $exceptionHandler, $q, $state, Specs) {
+function SpecCreateController( $exceptionHandler, $q, $state, OrderCloud) {
     var vm = this;
     vm.spec = {};
     vm.Options = [];
@@ -134,20 +134,20 @@ function SpecCreateController( $exceptionHandler, $q, $state, Specs) {
     };
 
     vm.Submit = function() {
-        Specs.Create(vm.spec)
+        OrderCloud.Specs.Create(vm.spec)
             .then(function(spec) {
                 var queue = [],
                     dfd = $q.defer();
                 angular.forEach(vm.Options, function(opt) {
-                    queue.push(Specs.CreateOption(spec.ID, opt));
+                    queue.push(OrderCloud.Specs.CreateOption(spec.ID, opt));
                 });
                 $q.all(queue).then(function() {
                     dfd.resolve();
                     if(DefaultOptionID != null){
-                        Specs.Patch(spec.ID, {DefaultOptionID: DefaultOptionID})
+                        OrderCloud.Specs.Patch(spec.ID, {DefaultOptionID: DefaultOptionID})
                     }
                     $state.go('specs', {}, {reload: true});
-                })
+                });
                 return dfd.promise;
             })
             .catch(function(ex) {
@@ -155,7 +155,7 @@ function SpecCreateController( $exceptionHandler, $q, $state, Specs) {
             });
     }
 }
-function SpecAssignController(Assignments, Paging, ProductList, ProductAssignments, SelectedSpec, Specs) {
+function SpecAssignController(OrderCloud, Assignments, Paging, ProductList, ProductAssignments, SelectedSpec) {
     var vm = this;
     vm.Spec = SelectedSpec;
     vm.list = ProductList;
@@ -164,14 +164,14 @@ function SpecAssignController(Assignments, Paging, ProductList, ProductAssignmen
     vm.pagingfunction = PagingFunction;
 
     function SaveFunc(ItemID) {
-        return Specs.SaveProductAssignment({
+        return OrderCloud.Specs.SaveProductAssignment({
             SpecID: vm.Spec.ID,
             ProductID: ItemID
         });
     }
 
     function DeleteFunc(ItemID) {
-        return Specs.DeleteProductAssignment(vm.Spec.ID, ItemID);
+        return OrderCloud.Specs.DeleteProductAssignment(vm.Spec.ID, ItemID);
     }
 
     function SaveAssignment() {
@@ -179,7 +179,7 @@ function SpecAssignController(Assignments, Paging, ProductList, ProductAssignmen
     }
 
     function AssignmentFunc() {
-        return Specs.ListProductAssignments(vm.Spec.ID, null, vm.assignments.Meta.PageSize);
+        return OrderCloud.Specs.ListProductAssignments(vm.Spec.ID, null, vm.assignments.Meta.PageSize);
     }
 
     function PagingFunction() {

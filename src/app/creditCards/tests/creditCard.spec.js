@@ -1,10 +1,11 @@
 describe('Component: CreditCards', function() {
     var scope,
         q,
-        creditCard;
+        creditCard,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         creditCard = {
@@ -15,56 +16,57 @@ describe('Component: CreditCards', function() {
             CardholderName: "Test Test",
             ExpirationDate: "08/2018"
         };
+        oc = OrderCloud;
     }));
 
     describe('State: creditCards', function() {
         var state;
-        beforeEach(inject(function($state, CreditCards) {
+        beforeEach(inject(function($state) {
             state = $state.get('creditCards');
-            spyOn(CreditCards, 'List').and.returnValue(null);
+            spyOn(oc.CreditCards, 'List').and.returnValue(null);
         }));
-        it('should resolve CreditCardList', inject(function ($injector, CreditCards) {
+        it('should resolve CreditCardList', inject(function ($injector) {
             $injector.invoke(state.resolve.CreditCardList);
-            expect(CreditCards.List).toHaveBeenCalled();
+            expect(oc.CreditCards.List).toHaveBeenCalled();
         }));
     });
 
     describe('State: creditCards.edit', function() {
         var state;
-        beforeEach(inject(function($state, CreditCards) {
+        beforeEach(inject(function($state) {
             state = $state.get('creditCards.edit');
-            spyOn(CreditCards, 'Get').and.returnValue(null);
+            spyOn(oc.CreditCards, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedCreditCard', inject(function ($injector, $stateParams, CreditCards) {
+        it('should resolve SelectedCreditCard', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCreditCard);
-            expect(CreditCards.Get).toHaveBeenCalledWith($stateParams.creditCardid);
+            expect(oc.CreditCards.Get).toHaveBeenCalledWith($stateParams.creditCardid);
         }));
     });
 
     describe('State: creditCards.assign', function() {
         var state;
-        beforeEach(inject(function($state, CreditCards, UserGroups, Buyers) {
+        beforeEach(inject(function($state) {
             state = $state.get('creditCards.assign');
-            spyOn(Buyers, 'Get').and.returnValue(null);
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(CreditCards, 'ListAssignments').and.returnValue(null);
-            spyOn(CreditCards, 'Get').and.returnValue(null);
+            spyOn(oc.Buyers, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.CreditCards, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.CreditCards, 'Get').and.returnValue(null);
         }));
-        it('should resolve Buyer', inject(function ($injector, Buyers) {
+        it('should resolve Buyer', inject(function ($injector) {
             $injector.invoke(state.resolve.Buyer);
-            expect(Buyers.Get).toHaveBeenCalled();
+            expect(oc.Buyers.Get).toHaveBeenCalled();
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignmentsList', inject(function ($injector, $stateParams, CreditCards) {
+        it('should resolve AssignmentsList', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUserGroups);
-            expect(CreditCards.ListAssignments).toHaveBeenCalledWith($stateParams.creditCardid);
+            expect(oc.CreditCards.ListAssignments).toHaveBeenCalledWith($stateParams.creditCardid);
         }));
-        it('should resolve SelectedCreditCard', inject(function ($injector, $stateParams, CreditCards) {
+        it('should resolve SelectedCreditCard', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedCreditCard);
-            expect(CreditCards.Get).toHaveBeenCalledWith($stateParams.creditCardid);
+            expect(oc.CreditCards.Get).toHaveBeenCalledWith($stateParams.creditCardid);
         }));
     });
 
@@ -79,34 +81,34 @@ describe('Component: CreditCards', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(CreditCards) {
+            beforeEach(function() {
                 creditCardEditCtrl.creditCard = creditCard;
                 creditCardEditCtrl.creditCardID = "TestCreditCard123456789";
                 var defer = q.defer();
                 defer.resolve(creditCard);
-                spyOn(CreditCards, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.CreditCards, 'Update').and.returnValue(defer.promise);
                 creditCardEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the CreditCards Update method', inject(function(CreditCards) {
-                expect(CreditCards.Update).toHaveBeenCalledWith(creditCardEditCtrl.creditCardID, creditCardEditCtrl.creditCard);
-            }));
+            });
+            it ('should call the CreditCards Update method', function() {
+                expect(oc.CreditCards.Update).toHaveBeenCalledWith(creditCardEditCtrl.creditCardID, creditCardEditCtrl.creditCard);
+            });
             it ('should enter the creditCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('creditCards', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(CreditCards) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(creditCard);
-                spyOn(CreditCards, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.CreditCards, 'Delete').and.returnValue(defer.promise);
                 creditCardEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the CreditCards Delete method', inject(function(CreditCards) {
-                expect(CreditCards.Delete).toHaveBeenCalledWith(creditCard.ID);
-            }));
+            });
+            it ('should call the CreditCards Delete method', function() {
+                expect(oc.CreditCards.Delete).toHaveBeenCalledWith(creditCard.ID);
+            });
             it ('should enter the creditCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('creditCards', {}, {reload:true});
             }));
@@ -123,18 +125,18 @@ describe('Component: CreditCards', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(CreditCards) {
+            beforeEach(function() {
                 creditCardCreateCtrl.creditCard = creditCard;
                 creditCardCreateCtrl.creditCard.ExpirationDate = new Date();
                 var defer = q.defer();
                 defer.resolve(creditCard);
-                spyOn(CreditCards, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.CreditCards, 'Create').and.returnValue(defer.promise);
                 creditCardCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the CreditCards Create method', inject(function(CreditCards) {
-                expect(CreditCards.Create).toHaveBeenCalledWith(creditCard);
-            }));
+            });
+            it ('should call the CreditCards Create method', function() {
+                expect(oc.CreditCards.Create).toHaveBeenCalledWith(creditCard);
+            });
             it ('should enter the creditCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('creditCards', {}, {reload:true});
             }));

@@ -11,19 +11,19 @@ function checkoutPaymentConfig($stateProvider) {
 			controller: 'CheckoutPaymentCtrl',
 			controllerAs: 'checkoutPayment',
 			resolve: {
-                AvailableCreditCards: function(CreditCards) {
+                AvailableCreditCards: function(OrderCloud) {
                     // TODO: Needs to be refactored to work with Me Service
-                    return CreditCards.List();
+                    return OrderCloud.CreditCards.List();
                 },
-                AvailableSpendingAccounts: function(SpendingAccounts) {
+                AvailableSpendingAccounts: function(OrderCloud) {
                     // TODO: Needs to be refactored to work with Me Service
-                    return SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '!*'});
+                    return OrderCloud.SpendingAccounts.List(null, null, null, null, null, {'RedemptionCode': '!*'});
                 }
 			}
 		});
 }
 
-function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendingAccounts, Orders, CreditCards, ImpersonationService, Me, toastr) {
+function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendingAccounts, OrderCloud, toastr) {
 	var vm = this;
     vm.paymentMethods = [
         {Display: 'Purchase Order', Value: 'PurchaseOrder'},
@@ -49,7 +49,7 @@ function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendi
     function SetPaymentMethod(order) {
         if (order.PaymentMethod) {
             // When Order Payment Method is changed it will clear out all saved payment information
-            Orders.Patch(order.ID, {PaymentMethod: order.PaymentMethod, CreditCardID: '', SpendingAccountID: ''})
+            OrderCloud.Orders.Patch(order.ID, {PaymentMethod: order.PaymentMethod, CreditCardID: '', SpendingAccountID: ''})
                 .then(function() {
                     $state.reload();
                 });
@@ -63,23 +63,21 @@ function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendi
             vm.Token = 'cc';
             if (vm.creditCard.PartialAccountNumber.length === 16) {
                 vm.creditCard.PartialAccountNumber = vm.creditCard.PartialAccountNumber.substr(vm.creditCard.PartialAccountNumber.length - 4);
-                CreditCards.Create(vm.creditCard)
+                OrderCloud.CreditCards.Create(vm.creditCard)
                     .then(function(CreditCard) {
-                        ImpersonationService.Impersonation(function() {
-                            Me.Get()
-                                .then(function(me) {
-                                    CreditCards.SaveAssignment({
+                        OrderCloud.Me.Get()
+                            .then(function(me) {
+                                OrderCloud.CreditCards.SaveAssignment({
                                         CreditCardID: CreditCard.ID,
                                         UserID: me.ID
                                     })
-                                        .then(function() {
-                                            Orders.Patch(order.ID, {CreditCardID: CreditCard.ID})
-                                                .then(function() {
-                                                    $state.reload();
-                                                });
-                                        });
-                                });
-                        });
+                                    .then(function() {
+                                        OrderCloud.Orders.Patch(order.ID, {CreditCardID: CreditCard.ID})
+                                            .then(function() {
+                                                $state.reload();
+                                            });
+                                    });
+                            });
                     });
             }
             else {
@@ -90,7 +88,7 @@ function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendi
 
     function SetCreditCard(order) {
         if (order.CreditCardID && order.PaymentMethod === 'CreditCard') {
-            Orders.Patch(order.ID, {CreditCardID: order.CreditCardID})
+            OrderCloud.Orders.Patch(order.ID, {CreditCardID: order.CreditCardID})
                 .then(function() {
                     $state.reload();
                 });
@@ -99,7 +97,7 @@ function CheckoutPaymentController($state, AvailableCreditCards, AvailableSpendi
 
     function SetSpendingAccount(order) {
         if (order.SpendingAccountID && order.PaymentMethod === 'SpendingAccount') {
-            Orders.Patch(order.ID, {SpendingAccountID: order.SpendingAccountID})
+            OrderCloud.Orders.Patch(order.ID, {SpendingAccountID: order.SpendingAccountID})
                 .then(function() {
                     $state.reload();
                 });

@@ -17,8 +17,8 @@ function UsersConfig( $stateProvider ) {
             controllerAs: 'users',
             data: {componentName: 'Users'},
             resolve: {
-                UserList: function( Users) {
-                    return Users.List();
+                UserList: function( OrderCloud ) {
+                    return OrderCloud.Users.List();
                 }
             }
         })
@@ -28,8 +28,8 @@ function UsersConfig( $stateProvider ) {
             controller:'UserEditCtrl',
             controllerAs: 'userEdit',
             resolve: {
-                SelectedUser: function( $stateParams, Users) {
-                    return Users.Get( $stateParams.userid);
+                SelectedUser: function( $stateParams, OrderCloud) {
+                    return OrderCloud.Users.Get( $stateParams.userid);
                 }
             }
         })
@@ -46,7 +46,7 @@ function UsersController( UserList ) {
     vm.list = UserList;
 }
 
-function UserEditController( $exceptionHandler, $state, SelectedUser, Users ) {
+function UserEditController( $exceptionHandler, $state, OrderCloud, SelectedUser ) {
     var vm = this,
         userid = SelectedUser.ID;
     vm.userName = SelectedUser.Username;
@@ -58,7 +58,7 @@ function UserEditController( $exceptionHandler, $state, SelectedUser, Users ) {
     vm.Submit = function() {
         var today = new Date();
         vm.user.TermsAccepted = today;
-        Users.Update(userid, vm.user)
+        OrderCloud.Users.Update(userid, vm.user)
             .then(function() {
                 $state.go('users', {}, {reload:true})
             })
@@ -68,7 +68,7 @@ function UserEditController( $exceptionHandler, $state, SelectedUser, Users ) {
     };
 
     vm.Delete = function() {
-        Users.Delete(userid)
+        OrderCloud.Users.Delete(userid)
             .then(function() {
                 $state.go('users', {}, {reload:true})
             })
@@ -78,13 +78,13 @@ function UserEditController( $exceptionHandler, $state, SelectedUser, Users ) {
     }
 }
 
-function UserCreateController( $exceptionHandler, $state, Users ) {
+function UserCreateController( $exceptionHandler, $state, OrderCloud ) {
     var vm = this;
     vm.user = {Email:"", Password:""};
     vm.Submit = function() {
         var today = new Date();
         vm.user.TermsAccepted = today;
-        Users.Create( vm.user)
+        OrderCloud.Users.Create( vm.user)
             .then(function() {
                 $state.go('users', {}, {reload:true})
             })

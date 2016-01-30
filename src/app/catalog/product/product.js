@@ -25,18 +25,16 @@ function ProductConfig($stateProvider) {
                 }
             },
             resolve: {
-                Product: function(Me, $stateParams, ImpersonationService) {
-                    return ImpersonationService.Impersonation(function(){
-                        return Me.GetProduct($stateParams.productid);
-                    });
+                Product: function($stateParams, OrderCloud) {
+                    return OrderCloud.Me.GetProduct($stateParams.productid);
                 },
-                SpecList: function(Specs, $q, $stateParams) {
+                SpecList: function(OrderCloud, $q, $stateParams) {
                     var queue = [];
                     var dfd = $q.defer();
-                    Specs.ListProductAssignments(null, $stateParams.productid)
+                    OrderCloud.Specs.ListProductAssignments(null, $stateParams.productid)
                         .then(function(data) {
                             angular.forEach(data.Items, function(assignment) {
-                                queue.push(Specs.Get(assignment.SpecID));
+                                queue.push(OrderCloud.Specs.Get(assignment.SpecID));
                             });
                             $q.all(queue)
                                 .then(function(result) {
@@ -87,21 +85,19 @@ function ProductConfig($stateProvider) {
                 }
             },
             resolve: {
-                LineItem: function($stateParams, Order, LineItems) {
-                    return LineItems.Get(Order.ID, $stateParams.lineitemid);
+                LineItem: function($stateParams, Order, OrderCloud) {
+                    return OrderCloud.LineItems.Get(Order.ID, $stateParams.lineitemid);
                 },
-                LI_Product: function(Me, ImpersonationService, LineItem) {
-                    return ImpersonationService.Impersonation(function() {
-                        return Me.GetProduct(LineItem.ProductID);
-                    });
+                LI_Product: function(LineItem, OrderCloud) {
+                    return OrderCloud.Me.GetProduct(LineItem.ProductID);
                 },
-                LI_SpecList: function(Specs, $q, LineItem) {
+                LI_SpecList: function(OrderCloud, $q, LineItem) {
                     var queue = [];
                     var dfd = $q.defer();
-                    Specs.ListProductAssignments(null, LineItem.ProductID)
+                    OrderCloud.Specs.ListProductAssignments(null, LineItem.ProductID)
                         .then(function(data) {
                             angular.forEach(data.Items, function(assignment) {
-                                queue.push(Specs.Get(assignment.SpecID));
+                                queue.push(OrderCloud.Specs.Get(assignment.SpecID));
                             });
                             $q.all(queue)
                                 .then(function(result) {
@@ -117,7 +113,7 @@ function ProductConfig($stateProvider) {
         });
 }
 
-function SpecSelectionDirective(Specs) {
+function SpecSelectionDirective(OrderCloud) {
     return {
         scope: {
             spec: '='
@@ -129,7 +125,7 @@ function SpecSelectionDirective(Specs) {
                 return scope.spec.OptionID;
             }, function(newVal, oldVal) {
                 if (!newVal) return;
-                Specs.GetOption(scope.spec.ID, scope.spec.OptionID)
+                OrderCloud.Specs.GetOption(scope.spec.ID, scope.spec.OptionID)
                     .then(function(specOption) {
                         if (specOption.IsOpenText) {
                             scope.showField = true;
@@ -151,7 +147,7 @@ function ProductController(Product, SpecList, Order) {
     vm.item.Specs = SpecList;
 }
 
-function LineItemEditController($state, Underscore, LineItem, LineItems, LineItemHelpers, LI_Product, LI_SpecList, $rootScope) {
+function LineItemEditController($state, Underscore, LineItem, OrderCloud, LineItemHelpers, LI_Product, LI_SpecList) {
     var vm = this;
     vm.item = LI_Product;
     var originalQuantity = LineItem.Quantity;
@@ -186,8 +182,7 @@ function LineItemEditController($state, Underscore, LineItem, LineItems, LineIte
         var patchObj = findDifferences();
         if (patchObj.Quantity || patchObj.Specs) {
             if (patchObj.Specs) patchObj.Specs = LineItemHelpers.SpecConvert(patchObj.Specs);
-            console.log(patchObj);
-            LineItems.Patch(LineItem.OrderID, LineItem.ID, patchObj)
+            OrderCloud.LineItems.Patch(LineItem.OrderID, LineItem.ID, patchObj)
                 .then(function() {
                     $state.go('cart')
                 });

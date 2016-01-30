@@ -1,10 +1,11 @@
 describe('Component: SpendingAccounts', function() {
     var scope,
         q,
-        spendingAccount;
+        spendingAccount,
+        oc;
     beforeEach(module('orderCloud'));
     beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         spendingAccount = {
@@ -16,73 +17,74 @@ describe('Component: SpendingAccounts', function() {
             EndDate: null,
             xp: null
         };
+        oc = OrderCloud;
     }));
 
     describe('State: spendingAccounts', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts) {
+        beforeEach(inject(function($state) {
             state = $state.get('spendingAccounts');
-            spyOn(SpendingAccounts, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'List').and.returnValue(null);
         }));
-        it('should resolve SpendingAccountList', inject(function ($injector, SpendingAccounts) {
+        it('should resolve SpendingAccountList', inject(function ($injector) {
             $injector.invoke(state.resolve.SpendingAccountList);
-            expect(SpendingAccounts.List).toHaveBeenCalledWith(null, null, null, null, null, {'RedemptionCode': '!*'});
+            expect(oc.SpendingAccounts.List).toHaveBeenCalledWith(null, null, null, null, null, {'RedemptionCode': '!*'});
         }));
     });
 
     describe('State: spendingAccounts.edit', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts) {
+        beforeEach(inject(function($state) {
             state = $state.get('spendingAccounts.edit');
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedSpendingAccount);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
         }));
     });
 
     describe('State: spendingAccounts.assignGroup', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts, UserGroups) {
+        beforeEach(inject(function($state) {
             state = $state.get('spendingAccounts.assignGroup');
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUserGroups);
-            expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.spendingAccountid, null, null, 'Group');
+            expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.spendingAccountid, null, null, 'Group');
         }));
-        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedSpendingAccount);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
         }));
     });
 
     describe('State: spendingAccounts.assignUser', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts, Users) {
+        beforeEach(inject(function($state) {
             state = $state.get('spendingAccounts.assignUser');
-            spyOn(Users, 'List').and.returnValue(null);
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
-            spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.Users, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
         }));
-        it('should resolve UserList', inject(function ($injector, Users) {
+        it('should resolve UserList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserList);
-            expect(Users.List).toHaveBeenCalled();
+            expect(oc.Users.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUsers', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve AssignedUsers', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUsers);
-            expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.spendingAccountid, null, null, 'User');
+            expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.spendingAccountid, null, null, 'User');
         }));
-        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedSpendingAccount', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedSpendingAccount);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.spendingAccountid);
         }));
     });
 
@@ -97,34 +99,34 @@ describe('Component: SpendingAccounts', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 spendingAccountEditCtrl.spendingAccount = spendingAccount;
                 spendingAccountEditCtrl.spendingAccountID = "TestSpendingAccount123456789";
                 var defer = q.defer();
                 defer.resolve(spendingAccount);
-                spyOn(SpendingAccounts, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Update').and.returnValue(defer.promise);
                 spendingAccountEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Update method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Update).toHaveBeenCalledWith(spendingAccountEditCtrl.spendingAccountID, spendingAccountEditCtrl.spendingAccount);
-            }));
+            });
+            it ('should call the SpendingAccounts Update method', function() {
+                expect(oc.SpendingAccounts.Update).toHaveBeenCalledWith(spendingAccountEditCtrl.spendingAccountID, spendingAccountEditCtrl.spendingAccount);
+            });
             it ('should enter the spendingAccounts state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('spendingAccounts', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(spendingAccount);
-                spyOn(SpendingAccounts, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Delete').and.returnValue(defer.promise);
                 spendingAccountEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Delete method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Delete).toHaveBeenCalledWith(spendingAccount.ID);
-            }));
+            });
+            it ('should call the SpendingAccounts Delete method', function() {
+                expect(oc.SpendingAccounts.Delete).toHaveBeenCalledWith(spendingAccount.ID);
+            });
             it ('should enter the spendingAccounts state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('spendingAccounts', {}, {reload:true});
             }));
@@ -141,17 +143,17 @@ describe('Component: SpendingAccounts', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 spendingAccountCreateCtrl.spendingAccount = spendingAccount;
                 var defer = q.defer();
                 defer.resolve(spendingAccount);
-                spyOn(SpendingAccounts, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Create').and.returnValue(defer.promise);
                 spendingAccountCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Create method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Create).toHaveBeenCalledWith(spendingAccountCreateCtrl.spendingAccount);
-            }));
+            });
+            it ('should call the SpendingAccounts Create method', function() {
+                expect(oc.SpendingAccounts.Create).toHaveBeenCalledWith(spendingAccountCreateCtrl.spendingAccount);
+            });
             it ('should enter the spendingAccounts state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('spendingAccounts', {}, {reload:true});
             }));
@@ -190,14 +192,14 @@ describe('Component: SpendingAccounts', function() {
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 spendingAccountAssignGroupCtrl.assignments = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 spendingAccountAssignGroupCtrl.pagingfunction();
             }));
             it ('should call the SpendingAccountAssignment paging method', inject(function(SpendingAccountAssignment) {
@@ -213,8 +215,7 @@ describe('Component: SpendingAccounts', function() {
                 $scope: scope,
                 UserList: [],
                 AssignedUsers: [],
-                SelectedSpendingAccount: {},
-
+                SelectedSpendingAccount: {}
             });
             spyOn($state, 'go').and.returnValue(true);
         }));
@@ -238,14 +239,14 @@ describe('Component: SpendingAccounts', function() {
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 spendingAccountAssignUserCtrl.assignments = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 spendingAccountAssignUserCtrl.pagingfunction();
             }));
             it ('should call the SpendingAccountAssignment paging method', inject(function(SpendingAccountAssignment) {

@@ -1,10 +1,11 @@
 describe('Component: GiftCards', function() {
     var scope,
         q,
-        giftCard;
+        giftCard,
+        oc;
     beforeEach(module('orderCloud'));
-    beforeEach(module('orderCloud.sdk'));
-    beforeEach(inject(function($q, $rootScope) {
+    beforeEach(module('orderCloud.newsdk'));
+    beforeEach(inject(function($q, $rootScope, OrderCloud) {
         q = $q;
         scope = $rootScope.$new();
         giftCard = {
@@ -17,73 +18,74 @@ describe('Component: GiftCards', function() {
             EndDate: null,
             xp: null
         };
+        oc = OrderCloud;
     }));
 
     describe('State: giftCards', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts) {
+        beforeEach(inject(function($state) {
             state = $state.get('giftCards');
-            spyOn(SpendingAccounts, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'List').and.returnValue(null);
         }));
-        it('should resolve GiftCardList', inject(function ($injector, SpendingAccounts) {
+        it('should resolve GiftCardList', inject(function ($injector) {
             $injector.invoke(state.resolve.GiftCardList);
-            expect(SpendingAccounts.List).toHaveBeenCalledWith(null, null, null, null, null, {'RedemptionCode': '*'});
+            expect(oc.SpendingAccounts.List).toHaveBeenCalledWith(null, null, null, null, null, {'RedemptionCode': '*'});
         }));
     });
 
     describe('State: giftCards.edit', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts) {
+        beforeEach(inject(function($state) {
             state = $state.get('giftCards.edit');
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
         }));
-        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedGiftCard);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
         }));
     });
 
     describe('State: giftCards.assignGroup', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts, UserGroups) {
+        beforeEach(inject(function($state) {
             state = $state.get('giftCards.assignGroup');
-            spyOn(UserGroups, 'List').and.returnValue(null);
-            spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.UserGroups, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
         }));
-        it('should resolve UserGroupList', inject(function ($injector, UserGroups) {
+        it('should resolve UserGroupList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserGroupList);
-            expect(UserGroups.List).toHaveBeenCalled();
+            expect(oc.UserGroups.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve AssignedUserGroups', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUserGroups);
-            expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.giftCardid, null, null, 'Group');
+            expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.giftCardid, null, null, 'Group');
         }));
-        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedGiftCard);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
         }));
     });
 
     describe('State: giftCards.assignUser', function() {
         var state;
-        beforeEach(inject(function($state, SpendingAccounts, Users) {
+        beforeEach(inject(function($state) {
             state = $state.get('giftCards.assignUser');
-            spyOn(Users, 'List').and.returnValue(null);
-            spyOn(SpendingAccounts, 'Get').and.returnValue(null);
-            spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            spyOn(oc.Users, 'List').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'Get').and.returnValue(null);
+            spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
         }));
-        it('should resolve UserList', inject(function ($injector, Users) {
+        it('should resolve UserList', inject(function ($injector) {
             $injector.invoke(state.resolve.UserList);
-            expect(Users.List).toHaveBeenCalled();
+            expect(oc.Users.List).toHaveBeenCalled();
         }));
-        it('should resolve AssignedUsers', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve AssignedUsers', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.AssignedUsers);
-            expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.giftCardid, null, null, 'User');
+            expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith($stateParams.giftCardid, null, null, 'User');
         }));
-        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams, SpendingAccounts) {
+        it('should resolve SelectedGiftCard', inject(function ($injector, $stateParams) {
             $injector.invoke(state.resolve.SelectedGiftCard);
-            expect(SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
+            expect(oc.SpendingAccounts.Get).toHaveBeenCalledWith($stateParams.giftCardid);
         }));
     });
 
@@ -96,10 +98,10 @@ describe('Component: GiftCards', function() {
             spyOn($state, 'go').and.returnValue(true);
         }));
         describe('pagingfunction', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(null);
-                spyOn(SpendingAccounts, 'List').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'List').and.returnValue(defer.promise);
                 scope.$digest();
                 giftCardsCtrl.list = {
                     Meta: {
@@ -107,12 +109,12 @@ describe('Component: GiftCards', function() {
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 giftCardsCtrl.pagingfunction();
-            }));
-            it ('should call the SpendingAccounts List method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.List).toHaveBeenCalledWith(null, giftCardsCtrl.list.Meta.Page + 1, giftCardsCtrl.list.Meta.PageSize, null, null, {'RedemptionCode': '*'});
-            }));
+            });
+            it ('should call the SpendingAccounts List method', function() {
+                expect(oc.SpendingAccounts.List).toHaveBeenCalledWith(null, giftCardsCtrl.list.Meta.Page + 1, giftCardsCtrl.list.Meta.PageSize, null, null, {'RedemptionCode': '*'});
+            });
         });
     });
 
@@ -127,34 +129,34 @@ describe('Component: GiftCards', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 giftCardEditCtrl.giftCard = giftCard;
                 giftCardEditCtrl.giftCardID = "TestGiftCard123456789";
                 var defer = q.defer();
                 defer.resolve(giftCard);
-                spyOn(SpendingAccounts, 'Update').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Update').and.returnValue(defer.promise);
                 giftCardEditCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Update method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Update).toHaveBeenCalledWith(giftCardEditCtrl.giftCardID, giftCardEditCtrl.giftCard);
-            }));
+            });
+            it ('should call the SpendingAccounts Update method', function() {
+                expect(oc.SpendingAccounts.Update).toHaveBeenCalledWith(giftCardEditCtrl.giftCardID, giftCardEditCtrl.giftCard);
+            });
             it ('should enter the giftCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('giftCards', {}, {reload:true});
             }));
         });
 
         describe('Delete', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 var defer = q.defer();
                 defer.resolve(giftCard);
-                spyOn(SpendingAccounts, 'Delete').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Delete').and.returnValue(defer.promise);
                 giftCardEditCtrl.Delete();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Delete method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Delete).toHaveBeenCalledWith(giftCard.ID);
-            }));
+            });
+            it ('should call the SpendingAccounts Delete method', function() {
+                expect(oc.SpendingAccounts.Delete).toHaveBeenCalledWith(giftCard.ID);
+            });
             it ('should enter the giftCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('giftCards', {}, {reload:true});
             }));
@@ -171,17 +173,17 @@ describe('Component: GiftCards', function() {
         }));
 
         describe('Submit', function() {
-            beforeEach(inject(function(SpendingAccounts) {
+            beforeEach(function() {
                 giftCardCreateCtrl.giftCard = giftCard;
                 var defer = q.defer();
                 defer.resolve(giftCard);
-                spyOn(SpendingAccounts, 'Create').and.returnValue(defer.promise);
+                spyOn(oc.SpendingAccounts, 'Create').and.returnValue(defer.promise);
                 giftCardCreateCtrl.Submit();
                 scope.$digest();
-            }));
-            it ('should call the SpendingAccounts Create method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.Create).toHaveBeenCalledWith(giftCardCreateCtrl.giftCard);
-            }));
+            });
+            it ('should call the SpendingAccounts Create method', function() {
+                expect(oc.SpendingAccounts.Create).toHaveBeenCalledWith(giftCardCreateCtrl.giftCard);
+            });
             it ('should enter the giftCards state', inject(function($state) {
                 expect($state.go).toHaveBeenCalledWith('giftCards', {}, {reload:true});
             }));
@@ -212,27 +214,27 @@ describe('Component: GiftCards', function() {
         });
 
         describe('pagingfunction', function() {
-            beforeEach(inject(function(SpendingAccounts) {
-                spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            beforeEach(function() {
+                spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
                 giftCardAssignGroupCtrl.list = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 giftCardAssignGroupCtrl.assignments = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 giftCardAssignGroupCtrl.pagingfunction();
-            }));
-            it ('should call the SpendingAccounts List method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith(giftCardAssignGroupCtrl.giftCard.ID, null, null, 'Group', giftCardAssignGroupCtrl.list.Meta.Page + 1, giftCardAssignGroupCtrl.list.Meta.PageSize);
-            }));
+            });
+            it ('should call the SpendingAccounts List method', function() {
+                expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith(giftCardAssignGroupCtrl.giftCard.ID, null, null, 'Group', giftCardAssignGroupCtrl.list.Meta.Page + 1, giftCardAssignGroupCtrl.list.Meta.PageSize);
+            });
         });
     });
 
@@ -243,8 +245,7 @@ describe('Component: GiftCards', function() {
                 $scope: scope,
                 UserList: [],
                 AssignedUsers: [],
-                SelectedGiftCard: {},
-
+                SelectedGiftCard: {}
             });
             spyOn($state, 'go').and.returnValue(true);
         }));
@@ -260,27 +261,27 @@ describe('Component: GiftCards', function() {
         });
 
         describe('pagingfunction', function() {
-            beforeEach(inject(function(SpendingAccounts) {
-                spyOn(SpendingAccounts, 'ListAssignments').and.returnValue(null);
+            beforeEach(function() {
+                spyOn(oc.SpendingAccounts, 'ListAssignments').and.returnValue(null);
                 giftCardAssignUserCtrl.list = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 giftCardAssignUserCtrl.assignments = {
                     Meta: {
                         Page: 1,
                         TotalPages: 2,
                         PageSize: 20
                     }
-                }
+                };
                 giftCardAssignUserCtrl.pagingfunction();
-            }));
-            it ('should call the SpendingAccounts List method', inject(function(SpendingAccounts) {
-                expect(SpendingAccounts.ListAssignments).toHaveBeenCalledWith(giftCardAssignUserCtrl.giftCard.ID, null, null, 'User', giftCardAssignUserCtrl.list.Meta.Page + 1, giftCardAssignUserCtrl.list.Meta.PageSize);
-            }));
+            });
+            it ('should call the SpendingAccounts List method', function() {
+                expect(oc.SpendingAccounts.ListAssignments).toHaveBeenCalledWith(giftCardAssignUserCtrl.giftCard.ID, null, null, 'User', giftCardAssignUserCtrl.list.Meta.Page + 1, giftCardAssignUserCtrl.list.Meta.PageSize);
+            });
         });
     });
 
