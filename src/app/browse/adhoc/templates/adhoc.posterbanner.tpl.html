@@ -6,14 +6,14 @@
         </div>
     </div>
     <div class="row">
-        <form name="poster-banner-form" ng-submit="adhocPosterBanner.submit()">
+        <form name="posterbannerform" ng-submit="adhocPosterBanner.submit()">
             <div class="col-sm-2 col-sm-offset-5">
                 <div class="input-group">
                     <input type="number" ng-required="true" class="form-control text-center" min="{{adhocPosterBanner.product.StandardPriceSchedule.MinQuantity}}" max="{{adhocPosterBanner.product.StandardPriceSchedule.MaxQuantity}}" ng-model="adhocPosterBanner.product.Quantity" ng-if="!adhocPosterBanner.product.StandardPriceSchedule.RestrictedQuantity" placeholder="Quantity">
                     <div class="input-group-btn">
-                        <button ng-disabled="poster-banner-form.$invalid" class="btn btn-success" type="submit">
+                        <button ng-disabled="posterbannerform.$invalid" class="btn btn-success" type="submit">
                             <i class="fa fa-plus-circle"></i>
-                            Add To Cart
+                            Add To Order
                         </button>
                     </div>
                 </div>

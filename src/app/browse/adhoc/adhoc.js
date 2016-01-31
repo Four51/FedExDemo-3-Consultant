@@ -55,10 +55,12 @@ function AdHocConfig($stateProvider) {
     ;
 }
 
-function AdHocService($q, Me, Products, OrderCloud, Categories, buyerid) {
+function AdHocService($q, Me, Products, OrderCloud, Categories, CurrentOrder, buyerid) {
     return {
         GetAdHocProducts: _getAdHocProducts,
-        CreateNew: _createNew
+        CreateNewDocument: _createNewDocument,
+        AddDocumentToOrder: _addDocumentToOrder,
+        AddPosterBannerToOrder: _addPosterBannerToOrder
     };
 
     function _getAdHocProducts() {
@@ -72,7 +74,7 @@ function AdHocService($q, Me, Products, OrderCloud, Categories, buyerid) {
         return deferred.promise;
     }
 
-    function _createNew(newDocument, currentUser) {
+    function _createNewDocument(newDocument, currentUser) {
         var deferred = $q.defer();
 
         var document = {
@@ -119,40 +121,60 @@ function AdHocService($q, Me, Products, OrderCloud, Categories, buyerid) {
 
         return deferred.promise;
     }
-}
 
-function AdHocController(AdHocProducts) {
-    var vm = this;
-    vm.products = AdHocProducts;
-}
+    function _addDocumentToOrder(product, customizationOptions) {
+        var deferred = $q.defer();
 
-function AdHocDocumentController($sce, Product) {
-    var vm = this;
-    vm.product = Product;
-    vm.productPreviewUrl = (vm.product.xp && vm.product.xp.document && vm.product.xp.document.URL) ? $sce.trustAsResourceUrl('https://docs.google.com/gview?url=' + vm.product.xp.document.URL + '&embedded=true') : null;
-}
-
-function AdHocPosterBannerController($state, $rootScope, Product, CurrentOrder, OrderCloud) {
-    var vm = this;
-    vm.product = Product;
-
-    vm.submit = function() {
         CurrentOrder.Get()
             .then(function(order) {
-                AddLineItem(order, vm.product);
+                AddLineItem(order);
             })
             .catch(function() {
                 OrderCloud.Orders.Create({})
                     .then(function(order) {
                         CurrentOrder.Set(order.ID);
-                        AddLineItem(order, vm.product);
+                        AddLineItem(order);
                     });
             });
-    };
 
-    function AddLineItem(order, product) {
-        OrderCloud.LineItems.Create(order.ID,
-            {
+        function AddLineItem(order) {
+            var lineItem = {
+                ProductID: product.ID,
+                Quantity: 1,
+                xp: {
+                    Product: {
+                        Group: 'AdHoc',
+                        Type: 'Document'
+                    },
+                    CustomizationOptions: customizationOptions
+                }
+            };
+            OrderCloud.LineItems.Create(order.ID, lineItem)
+                .then(function(lineItem) {
+                    deferred.resolve(lineItem);
+                });
+        }
+
+        return deferred.promise;
+    }
+
+    function _addPosterBannerToOrder(product) {
+        var deferred = $q.defer();
+
+        CurrentOrder.Get()
+            .then(function(order) {
+                AddLineItem(order);
+            })
+            .catch(function() {
+                OrderCloud.Orders.Create({})
+                    .then(function(order) {
+                        CurrentOrder.Set(order.ID);
+                        AddLineItem(order);
+                    });
+            });
+
+        function AddLineItem(order) {
+            var lineItem = {
                 ProductID: product.ID,
                 Quantity: product.Quantity,
                 xp: {
@@ -161,12 +183,53 @@ function AdHocPosterBannerController($state, $rootScope, Product, CurrentOrder, 
                         Type: 'PosterBanner'
                     }
                 }
-            }
-        ).then(function(lineItem) {
-            $rootScope.$broadcast('LineItemAddedToCart', order.ID, lineItem);
-            $state.go('cart');
-        });
+            };
+            OrderCloud.LineItems.Create(order.ID, lineItem)
+                .then(function(lineItem) {
+                    deferred.resolve(lineItem);
+                });
+        }
+
+        return deferred.promise;
     }
+}
+
+function AdHocController(AdHocProducts) {
+    var vm = this;
+    vm.products = AdHocProducts;
+}
+
+function AdHocDocumentController($sce, $state, Product, AdHocService) {
+    var vm = this;
+    vm.product = Product;
+    vm.productPreviewUrl = (vm.product.xp && vm.product.xp.document && vm.product.xp.document.URL) ? $sce.trustAsResourceUrl('https://docs.google.com/gview?url=' + vm.product.xp.document.URL + '&embedded=true') : null;
+
+    vm.binding = ['None', 'Staple', 'Coil Binding & Covers', 'Comb Binding & Covers', 'Binder & Spine'];
+    vm.stapleOptions = ['Top Left Staples', 'Top Double Stapled', 'Side Double Stapled'];
+    vm.binderColors = ['Black', 'White'];
+    vm.binderSizes = ['Half Inch', 'One Inch', 'One and One Half Inch', 'Two Inches', 'Three Inches'];
+    vm.paperColors = ['Ultra Bright White', 'Gloss Cover', 'Ivory', 'Canary', 'Pastel Blue', 'Green', 'Red', 'Sun Yellow'];
+
+    vm.customizationOptions = {};
+
+    vm.submit = function() {
+        AdHocService.AddDocumentToOrder(vm.product, vm.customizationOptions)
+            .then(function() {
+                $state.go('cart');
+            });
+    };
+}
+
+function AdHocPosterBannerController($state, Product, AdHocService) {
+    var vm = this;
+    vm.product = Product;
+
+    vm.submit = function() {
+        AdHocService.AddPosterBannerToOrder(vm.product)
+            .then(function() {
+                $state.go('cart')
+            });
+    };
 }
 
 function AdHocNewDocumentController($state, $scope, $sce, AdHocService, CurrentUser) {
@@ -189,7 +252,7 @@ function AdHocNewDocumentController($state, $scope, $sce, AdHocService, CurrentU
     });
 
     vm.submit = function() {
-        AdHocService.CreateNew(vm.newDocument, CurrentUser)
+        AdHocService.CreateNewDocument(vm.newDocument, CurrentUser)
             .then(function(product) {
                 $state.go('adhoc.product', {productID: product.ID})
             });

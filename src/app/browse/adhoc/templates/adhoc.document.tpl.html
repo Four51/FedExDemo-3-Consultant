@@ -1,22 +1,63 @@
-<article>
+<article class="container">
     <div class="text-center">
         <h3 class="item-name">{{adhocDocument.product.Name || adhocDocument.product.ID}}</h3>
-        <iframe ng-if="adhocDocument.product.xp.document.URL" class="doc-preview" src="{{adhocDocument.productPreviewUrl}}"></iframe>
     </div>
     <div class="row">
-        <form name="adhoc-form">
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label>Input 1</label>
-                    <input type="text" class="form-control" placeholder="Input 1">
+        <div class="col-sm-8">
+            <iframe ng-if="adhocDocument.product.xp.document.URL" class="doc-preview" src="{{adhocDocument.productPreviewUrl}}"></iframe>
+        </div>
+        <div class="col-sm-4">
+            <form name="adhocform" ng-submit="adhocDocument.submit()">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Binding, Stapling & Covers</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.Binding" ng-options="binding as binding for binding in adhocDocument.binding" ng-required="true"></select>
+                        </div>
+                        <div class="form-group" ng-if="adhocDocument.customizationOptions.Binding == 'Staple'">
+                            <label>Staple Option</label>
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.StapleOption" ng-options="staple as staple for staple in adhocDocument.stapleOptions" ng-required="adhocDocument.customizationOptions.Binding == 'Staple'"></select>
+                        </div>
+                        <div class="form-group" ng-if="adhocDocument.customizationOptions.Binding == 'Coil Binding & Covers' || adhocDocument.customizationOptions.Binding == 'Comb Binding & Covers'">
+                            <label>Cover Option</label>
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.CoverColor" ng-options="color as color for color in adhocDocument.paperColors" ng-required="adhocDocument.customizationOptions.Binding == 'Coil Binding & Covers' || adhocDocument.customizationOptions.Binding == 'Comb Binding & Covers'"></select>
+                        </div>
+                        <div class="form-group" ng-if="adhocDocument.customizationOptions.Binding == 'Binder & Spine'">
+                            <label>Color</label>
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.BinderColor" ng-options="color as color for color in adhocDocument.binderColors" ng-required="adhocDocument.customizationOption.Binding == 'Binder & Spine'"></select>
+                            <label>Size</label>
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.BinderSize" ng-options="size as size for size in adhocDocument.binderSizes" ng-required="adhocDocument.customizationOption.Binding == 'Binder & Spine'"></select>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label>Input 2</label>
-                    <input type="text" class="form-control" placeholder="Input 2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Tabs and Inserts</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group" ng-if="adhocDocument.customizationOptions.Binding && adhocDocument.customizationOptions.Binding != 'None' && adhocDocument.customizationOptions.Binding != 'Staple'">
+                            <label>First Line of Tab</label>
+                            <input type="text" class="form-control" ng-model="adhocDocument.customizationOptions.TabFirstLine" />
+                            <label>Second Line of Tab</label>
+                            <input type="text" class="form-control" ng-model="adhocDocument.customizationOptions.TabSecondLine" />
+                            <label>Paper Color</label>
+                            <select class="form-control" ng-model="adhocDocument.customizationOptions.TabColor" ng-options="color as color for color in adhocDocument.binderColors"></select>
+                        </div>
+                        <div class="alert alert-info" ng-if="!adhocDocument.customizationOptions.Binding || adhocDocument.customizationOptions.Binding == 'None' || adhocDocument.customizationOptions.Binding == 'Staple'">
+                            <p>Tabs are unavailable if you have selected Stapling.</p>
+                            <p>Tabs are available only if Binding of 3-Hole Punching is selected.</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </form>
+                <div>
+                    <button ng-disabled="adhocform.$invalid" class="btn btn-success pull-right" type="submit">
+                        <i class="fa fa-plus-circle"></i>
+                        Add To Order
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </article>
