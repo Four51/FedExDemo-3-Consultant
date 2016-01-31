@@ -87,9 +87,13 @@ function BaseConfig( $stateProvider ) {
 		});
 }
 
-function BaseController(CurrentUser) {
+function BaseController($rootScope, CurrentUser) {
 	var vm = this;
     vm.currentUser = CurrentUser;
+
+    $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
+        console.log(error);
+    });
 }
 
 function BaseLeftController(ComponentList) {

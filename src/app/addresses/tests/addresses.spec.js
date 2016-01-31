@@ -339,4 +339,3 @@ describe('Component: Addresses', function() {
         });
     });
 });
-

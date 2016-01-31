@@ -7,7 +7,7 @@ angular.module( 'orderCloud' )
 
 function PromotionalConfig($stateProvider) {
     $stateProvider
-        .state( 'PromotionalProducts', {
+        .state( 'promotionalproducts', {
             parent: 'base',
             url: '/promotional',
             templateUrl:'browse/promotional/templates/promotional.tpl.html',

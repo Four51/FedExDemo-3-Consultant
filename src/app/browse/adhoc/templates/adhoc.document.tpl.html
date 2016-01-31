@@ -1,0 +1,22 @@
+<article>
+    <div class="text-center">
+        <h3 class="item-name">{{adhocDocument.product.Name || adhocDocument.product.ID}}</h3>
+        <iframe ng-if="adhocDocument.product.xp.document.URL" class="doc-preview" src="{{adhocDocument.productPreviewUrl}}"></iframe>
+    </div>
+    <div class="row">
+        <form name="adhoc-form">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label>Input 1</label>
+                    <input type="text" class="form-control" placeholder="Input 1">
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label>Input 2</label>
+                    <input type="text" class="form-control" placeholder="Input 2">
+                </div>
+            </div>
+        </form>
+    </div>
+</article>

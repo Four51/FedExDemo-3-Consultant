@@ -7,7 +7,7 @@ angular.module( 'orderCloud' )
 
 function WorkbooksConfig($stateProvider) {
     $stateProvider
-        .state( 'Workbooks', {
+        .state( 'workbooks', {
             parent: 'base',
             url: '/workbooks',
             templateUrl:'browse/workbooks/templates/workbooks.tpl.html',
