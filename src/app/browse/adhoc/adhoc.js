@@ -197,6 +197,10 @@ function AdHocService($q, Me, Products, OrderCloud, Categories, CurrentOrder, bu
 function AdHocController(AdHocProducts) {
     var vm = this;
     vm.products = AdHocProducts;
+
+    vm.browseDropbox = function() {
+
+    };
 }
 
 function AdHocDocumentController($sce, $state, Product, AdHocService) {
