@@ -1,0 +1,35 @@
+<article class="container-fluid">
+    <h3 class="page-header">
+        <b>New Workbook</b>
+    </h3>
+    <form name="NewWorkbookForm" ng-submit="workbooksNewDocument.submit()">
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <label for="productNameInput">Product Name</label>
+                <input id="productNameInput" type="text" class="form-control" ng-model="workbooksNewDocument.newWorkbook.Name" ng-required="true"/>
+            </div>
+            <div class="form-group col-sm-4">
+                <ordercloud-file-upload model="workbooksNewDocument.newWorkbook" keyname="document" label="Workbook" extensions="doc, pptx" invalid-extension="jpg"></ordercloud-file-upload>
+            </div>
+            <div class="form-group col-sm-4">
+                <ordercloud-file-upload model="workbooksNewDocument.newWorkbook" keyname="image" label="Image" extensions="jpg, jpeg, png, gif" invalid-extension="x"></ordercloud-file-upload>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label for="productDescriptionInput">Description</label>
+                <textarea id="productDescriptionInput" type="text" class="form-control" ng-model="workbooksNewDocument.newWorkbook.Description"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 form-group">
+                <button type="submit" class="btn btn-primary" ng-disabled="NewWorkbookForm.$invalid">Save</button>
+                <button type="button" class="btn btn-default" ui-sref="^">Cancel</button>
+            </div>
+            <div class="col-sm-9 form-group">
+                <iframe ng-if="workbooksNewDocument.preview" class="doc-preview" src="{{workbooksNewDocument.iframeURL}}" style="width: 100%"></iframe>
+            </div>
+        </div>
+    </form>
+</article>
+
