@@ -42,7 +42,7 @@ function CheckoutShippingController($state, $rootScope, OrderCloud, OrderShippin
         if (vm.saveAddress) {
             OrderCloud.Addresses.Create(vm.address)
                 .then(function(address) {
-                    Me.Get()
+                    OrderCloud.Me.Get()
                         .then(function(me) {
                             OrderCloud.Addresses.SaveAssignment({
                                     AddressID: address.ID,
