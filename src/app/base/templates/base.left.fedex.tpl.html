@@ -11,6 +11,9 @@
             <li role="presentation" ng-repeat="category in baseLeft.categories.Items" ui-sref-active="active">
                 <a href="" ui-sref="{{category.ID}}" ui-sref-opts="{reload:true}">{{category.Name}}</a>
             </li>
+            <li role="presentation" ui-sref-active="active" ng-if="base.currentUser.xp.Admin">
+                <a href="" ui-sref="registration">Registration Requests <span class="badge">{{base.requests.length}}</span></a>
+            </li>
         </ul>
     </nav>
 </aside>

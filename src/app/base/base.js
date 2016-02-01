@@ -1,6 +1,7 @@
 angular.module( 'orderCloud' )
 
 	.config( BaseConfig )
+    .factory('BaseService', BaseService)
 	.controller( 'BaseCtrl', BaseController )
     .controller( 'BaseLeftCtrl', BaseLeftController )
     .controller( 'BaseLeftFedExCtrl', BaseLeftFedExController )
@@ -87,9 +88,36 @@ function BaseConfig( $stateProvider ) {
 		});
 }
 
-function BaseController($rootScope, CurrentUser) {
+function BaseService($q, OrderCloud) {
+    var service = {
+        GetRegistrationRequests: _getRegistrationRequests
+    };
+
+    function _getRegistrationRequests() {
+        var deferred = $q.defer();
+
+        OrderCloud.Users.List(null, 1, 100, null, null, {'xp.TempUser': true})
+            .then(function(data) {
+                deferred.resolve(data.Items);
+            });
+
+        return deferred.promise;
+    }
+
+    return service;
+}
+
+function BaseController($rootScope, CurrentUser, BaseService) {
 	var vm = this;
     vm.currentUser = CurrentUser;
+
+    vm.requests = null;
+    if (vm.currentUser.xp && vm.currentUser.xp.Admin) {
+        BaseService.GetRegistrationRequests()
+            .then(function(requests) {
+                vm.requests = requests;
+            })
+    }
 
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
         console.log(error);

@@ -16,7 +16,7 @@ function LoginConfig( $stateProvider ) {
         })
 }
 
-function LoginService( $q, $window, OrderCloud, $resource, BuyerID, clientid, apiurl ) {
+function LoginService( $q, $window, OrderCloud, $resource, $timeout, BuyerID, clientid, apiurl ) {
     return {
         SendVerificationCode: _sendVerificationCode,
         ResetPassword: _resetPassword,
@@ -95,25 +95,28 @@ function LoginService( $q, $window, OrderCloud, $resource, BuyerID, clientid, ap
                 "Email": registerCredentials.Email,
                 "Active": true,
                 "xp": {
-                    "TempUser": true
+                    "TempUser": true,
+                    "FirstLogin": true
                 },
                 "SecurityProfileID": "FedExFull"
             };
 
-            $resource(apiurl + '/v1/buyers/:buyerID/users', {'buyerID': BuyerID.Get()}, {
-                callApi: {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + authToken
+            $timeout($resource(apiurl + '/v1/buyers/:buyerID/users', {'buyerID': BuyerID.Get()}, {
+                        callApi: {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + authToken
+                        }
                     }
-                }
-            }).callApi(user).$promise
+                }).callApi(user).$promise
                 .then(function(data) {
                     deferred.resolve();
                 })
                 .catch(function(ex) {
                     deferred.reject();
-                });
+                }),
+            500);
+
         }
 
         return deferred.promise;
@@ -178,10 +181,12 @@ function LoginController( $state, $stateParams, $exceptionHandler, OrderCloud, L
             .then(function() {
                 vm.setForm('login');
                 vm.registerSuccess = true;
+                vm.registerCredentials = {};
             })
             .catch(function() {
                 vm.setForm('login');
                 vm.registerSuccess = false;
+                vm.registerCredentials = {};
             });
     };
 }
