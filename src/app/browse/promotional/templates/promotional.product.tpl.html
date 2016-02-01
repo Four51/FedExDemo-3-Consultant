@@ -1,0 +1,64 @@
+<article class="container">
+    <div class="text-center">
+        <h3 class="item-name">{{promotionalProduct.product.Name || promotionalProduct.product.ID}}</h3>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div>
+                <span class="fa-stack fa-5x" ng-if="!promotionalProduct.product.xp.image">
+                    <i class="fa fa-camera fa-stack-1x"></i>
+                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                </span>
+                <div ng-if="promotionalProduct.product.xp.image">
+                    <img class="img-responsive" ng-src="{{promotionalProduct.product.xp.image.URL}}" alt="Product Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <form name="promotionalform" ng-submit="promotionalProduct.submit()">
+                <p>{{promotionalProduct.product.Description}}</p>
+                <div class="panel panel-default" ng-if="promotionalProduct.product.StandardPriceSchedule.PriceBreaks">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Price Breaks</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="priceBreak in promotionalProduct.product.StandardPriceSchedule.PriceBreaks">
+                            <td>{{priceBreak.Quantity}}</td>
+                            <td>{{priceBreak.Price}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center">
+                    <b>Available Inventory: {{promotionalProduct.product.Inventory.Available}}</b>
+                </div>
+                <div class="panel panel-default" ng-if="promotionalProduct.product.Specs.length">
+                    <div class="panel-body">
+                        <div class="form-group" ng-repeat="spec in promotionalProduct.product.Specs">
+                            <label>{{spec.Name}}</label>
+                            <input type="text" ng-if="spec.AllowOpenText && !spec.Options.length" class="form-control" ng-model="spec.Value" />
+                            <select class="form-control" ng-model="spec.OptionID" ng-options="option.ID as option.Value for option in spec.Options"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="number" ng-required="true" class="form-control text-center" min="{{promotionalProduct.product.StandardPriceSchedule.MinQuantity}}" max="{{promotionalProduct.product.StandardPriceSchedule.MaxQuantity}}" ng-model="promotionalProduct.product.Quantity" ng-if="!promotionalProduct.product.StandardPriceSchedule.RestrictedQuantity" placeholder="Quantity">
+                    <div class="input-group-btn">
+                        <button ng-disabled="promotionalform.$invalid" class="btn btn-success" type="submit">
+                            <span ng-if="promotionalProduct.price" class="badge">{{promotionalProduct.price | currency}}</span>
+                            <i class="fa fa-plus-circle"></i>
+                            Add To Order
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</article>

@@ -1,1 +1,24 @@
-Promotional
+<ui-view>
+    <article class="container-fluid">
+        <h3 class="page-header">
+            Workbooks
+        </h3>
+        <div class="product-list row">
+            <div class="col-md-3" ng-repeat="product in promotional.products">
+                <div class="product-item" ui-sref="promotionalproducts.product({productID: product.ID})">
+                    <h3 class="item-name">{{product.Name || product.ID}}</h3>
+                    <div>
+                    <span class="fa-stack fa-5x" ng-if="!product.xp.image">
+                        <i class="fa fa-camera fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                    </span>
+                        <div ng-if="product.xp.image">
+                            <img class="img-responsive" ng-src="{{product.xp.image.URL}}" alt="Product Image">
+                        </div>
+                    </div>
+                    <div class="item-description" ng-if="product.Description"><p>{{product.Description}}</p></div>
+                </div>
+            </div>
+        </div>
+    </article>
+</ui-view>
