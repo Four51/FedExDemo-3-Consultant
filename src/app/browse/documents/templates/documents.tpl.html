@@ -1,0 +1,37 @@
+<ui-view>
+    <article class="container-fluid">
+        <h3 class="page-header">
+            Workbooks
+        </h3>
+        <div class="product-list row">
+            <div class="col-md-3" ng-repeat="product in documents.products">
+                <div class="product-item" ui-sref="documents.document({productID: product.ID})">
+                    <h3 class="item-name">{{product.Name || product.ID}}</h3>
+                    <div>
+                    <span class="fa-stack fa-5x" ng-if="!product.xp.image">
+                        <i class="fa fa-camera fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                    </span>
+                        <div ng-if="product.xp.image">
+                            <img class="img-responsive" ng-src="{{product.xp.image.URL}}" alt="Product Image">
+                        </div>
+                    </div>
+                    <div class="item-description" ng-if="product.Description"><p>{{product.Description}}</p></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="product-item new-document-upload" ui-sref="documents.newDocument">
+                    <span><i class="fa fa-plus-circle"></i> Upload New Document</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="product-item new-document-upload browse-dropbox" ng-click="documents.browseDropbox()">
+                    <div>
+                        <p>Browse Dropbox</p>
+                        <i class="fa fa-dropbox fa-5x dropbox-blue"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</ui-view>
