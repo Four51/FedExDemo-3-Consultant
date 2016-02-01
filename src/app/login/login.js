@@ -16,10 +16,11 @@ function LoginConfig( $stateProvider ) {
         })
 }
 
-function LoginService( $q, $window, OrderCloud, clientid ) {
+function LoginService( $q, $window, OrderCloud, $resource, BuyerID, clientid, apiurl ) {
     return {
         SendVerificationCode: _sendVerificationCode,
-        ResetPassword: _resetPassword
+        ResetPassword: _resetPassword,
+        RegisterUser: _registerUser
     };
 
     function _sendVerificationCode(email) {
@@ -58,6 +59,62 @@ function LoginService( $q, $window, OrderCloud, clientid ) {
             .catch(function(ex) {
                 deferred.reject(ex);
             });
+
+        return deferred.promise;
+    }
+
+    function _registerUser(registerCredentials) {
+        var deferred = $q.defer();
+        var authToken;
+
+        var creds = {Username: 'RegistrationUser', Password: 'RegistrationUser451'};
+        OrderCloud.Auth.GetToken(creds)
+            .then(function(data) {
+                authToken = data['access_token'];
+                createUser();
+            });
+
+        function randomPassword() {
+            var chars = "0123456789abcdefghijklmnopqrstuvwxyz?.ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()";
+            var string_length = 12;
+            var randomstring = '';
+            for (var i=0; i<string_length; i++) {
+                var rnum = Math.floor(Math.random() * chars.length);
+                randomstring += chars.substring(rnum,rnum+1);
+            }
+
+            return randomstring;
+        }
+
+        function createUser() {
+            var user = {
+                "Username": registerCredentials.Username,
+                "Password": randomPassword(),
+                "FirstName": registerCredentials.FirstName,
+                "LastName": registerCredentials.LastName,
+                "Email": registerCredentials.Email,
+                "Active": true,
+                "xp": {
+                    "TempUser": true
+                },
+                "SecurityProfileID": "FedExFull"
+            };
+
+            $resource(apiurl + '/v1/buyers/:buyerID/users', {'buyerID': BuyerID.Get()}, {
+                callApi: {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken
+                    }
+                }
+            }).callApi(user).$promise
+                .then(function(data) {
+                    deferred.resolve();
+                })
+                .catch(function(ex) {
+                    deferred.reject();
+                });
+        }
 
         return deferred.promise;
     }
@@ -112,6 +169,19 @@ function LoginController( $state, $stateParams, $exceptionHandler, OrderCloud, L
                 vm.credentials.ResetUsername = null;
                 vm.credentials.NewPassword = null;
                 vm.credentials.ConfirmPassword = null;
+            });
+    };
+
+    vm.registerCredentials = {};
+    vm.register = function() {
+        LoginService.RegisterUser(vm.registerCredentials)
+            .then(function() {
+                vm.setForm('login');
+                vm.registerSuccess = true;
+            })
+            .catch(function() {
+                vm.setForm('login');
+                vm.registerSuccess = false;
             });
     };
 }

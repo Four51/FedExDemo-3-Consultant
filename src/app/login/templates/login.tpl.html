@@ -2,6 +2,7 @@
     <div ng-switch-when="login">
         <form class="panel-body" name="LoginForm" ng-submit="login.submit()" >
             <h1 class="text-center">Login</h1>
+            <div class="alert alert-success" ng-if="login.registerSuccess">Congratulations! Please wait for your supervisor to accept your registration request.</div>
             <div class="form-group">
                 <label for="Username">Username</label>
                 <input type="text" class="form-control" id="Username" ng-model="login.credentials.Username" ng-required="true" />
@@ -10,8 +11,36 @@
                 <label for="Password">Password</label>
                 <input type="password" class="form-control" id="Password" ng-model="login.credentials.Password" ng-required="true" />
             </div>
-            <button id="submit_login" type="submit" class="btn btn-primary" ng-disabled="LoginForm.$invalid">Submit</button>
-            <a id="forgot_password" class="btn btn-link" ng-click="login.setForm('forgot')">Forgot Password?</a> <!--TODO: should this be functional in the Seed Project?-->
+            <div class="text-center">
+                <button id="submit_login" type="submit" class="btn btn-primary" ng-disabled="LoginForm.$invalid">Submit</button>
+            </div>
+            <div class="text-center">
+                <a id="forgot_password" class="btn btn-link" ng-click="login.setForm('forgot')">Forgot Password?</a>
+                <a id="register" class="btn btn-link" ng-click="login.setForm('register')">Register for Account</a>
+            </div>
+        </form>
+    </div>
+    <div ng-switch-when="register">
+        <form class="panel-body" name="RegisterForm" ng-submit="login.register()">
+            <h1 class="text-center">Register</h1>
+            <div class="form-group">
+                <label for="registerusername">Username</label>
+                <input type="text" class="form-control" id="registerusername" ng-model="login.registerCredentials.Username" ng-required="true" />
+            </div>
+            <div class="form-group">
+                <label for="registerfirstname">First Name</label>
+                <input type="text" class="form-control" id="registerfirstname" ng-model="login.registerCredentials.FirstName" ng-required="true" />
+            </div>
+            <div class="form-group">
+                <label for="registerlastname">Last Name</label>
+                <input type="text" class="form-control" id="registerlastname" ng-model="login.registerCredentials.LastName" ng-required="true" />
+            </div>
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <input type="text" class="form-control" id="RegisterEmail" ng-model="login.registerCredentials.Email" ng-required="true" />
+            </div>
+            <button type="submit" id="register_submit" class="btn btn-primary" ng-disabled="RegisterForm.$invalid">Submit</button>
+            <a id="back_to_login" class="btn btn-link" ng-click="login.setForm('login')">Back to Login</a>
         </form>
     </div>
     <div ng-switch-when="forgot">
