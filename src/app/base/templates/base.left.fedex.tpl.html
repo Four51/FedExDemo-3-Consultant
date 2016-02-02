@@ -9,7 +9,7 @@
     <nav>
         <ul class="nav nav-pills nav-stacked">
             <li role="presentation" ng-repeat="category in baseLeft.categories.Items" ui-sref-active="active">
-                <a href="" ui-sref="{{category.ID}}" ui-sref-opts="{reload:true}">{{category.Name}}</a>
+                <a href="" ng-click="base.goToCategory(category)" ui-sref-opts="{reload:true}">{{category.Name}}</a>
             </li>
             <li role="presentation" ui-sref-active="active" ng-if="base.currentUser.xp.Admin">
                 <a href="" ui-sref="registration">Registration Requests <span class="badge">{{base.requests.length}}</span></a>

@@ -95,11 +95,11 @@ function DocumentsService($q, Me, OrderCloud, CurrentOrder, Products, Categories
         return deferred.promise;
     }
 
-    function _createNewDocument(newDocument, currentUser) {
+    function _createNewDocument(newDocument, currentUser, type) {
         var deferred = $q.defer();
 
         var document = {
-            "Name": newDocument.Name,
+            "Name": newDocument.Name || type,
             "Description": newDocument.Description,
             "QuantityMultiplier": 1,
             "ShipWeight": null,
@@ -109,7 +109,7 @@ function DocumentsService($q, Me, OrderCloud, CurrentOrder, Products, Categories
             "InventoryNotificationPoint": null,
             "VariantLevelInventory": false,
             "xp": {
-                Type: 'Document'
+                Type: type
             },
             "AllowOrderExceedInventory": false,
             "DisplayInventory": false
@@ -144,7 +144,7 @@ function DocumentsService($q, Me, OrderCloud, CurrentOrder, Products, Categories
             Products.SaveAssignment(assignment)
                 .then(function() {
                     var catAssignment = {
-                        "CategoryID": "documents",
+                        "CategoryID": (type == 'document' ? 'documents' : (type == 'workbook' ? 'workbooks' : type ? type : 'print')),
                         "ProductID": productID
                     };
                     Categories.SaveProductAssignment(catAssignment)
@@ -160,9 +160,35 @@ function DocumentsService($q, Me, OrderCloud, CurrentOrder, Products, Categories
     return service;
 }
 
-function DocumentsController(ProductList) {
+function DocumentsController($state, $scope, ProductList, DocumentsService, CurrentUser) {
     var vm = this;
     vm.products = ProductList;
+
+    vm.newDocument = {};
+
+    vm.uploading = false;
+    $scope.$watch(function () {
+        if (vm.newDocument.xp && vm.newDocument.xp.document && vm.newDocument.xp.document.URL && !vm.uploading) {
+            vm.uploading = true;
+            DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser, 'document')
+                .then(function(productID) {
+                    $state.go('workbooks.workbook', {productID: productID})
+                });
+        }
+        return vm.newDocument.xp;
+    },function(value){
+        if (vm.newDocument.xp && vm.newDocument.xp.document && vm.newDocument.xp.document.URL && !vm.uploading) {
+            vm.uploading = true;
+            DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser, 'document')
+                .then(function(productID) {
+                    $state.go('workbooks.workbook', {productID: productID})
+                });
+        }
+    });
+
+    vm.uploadDocument = function() {
+        $("#uploadbutton input").click();
+    };
 }
 
 function DocumentsDocumentController($sce, $state, DocumentsService, Product) {
@@ -198,9 +224,9 @@ function DocumentsNewDocumentController($state, $scope, $sce, DocumentsService, 
     });
 
     vm.submit = function() {
-        DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser)
+        DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser, 'document')
             .then(function(product) {
-                $state.go('documents.document', {productID: product.ID})
+                $state.go('workbooks.workbook', {productID: product.ID})
             });
     };
 }

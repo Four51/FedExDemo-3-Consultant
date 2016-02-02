@@ -1,11 +1,19 @@
 <div class="container-fluid">
-	<header class="jumbotron text-center">
-		<h2 ng-bind="application.name"></h2>
+	<header class="text-center">
+		<h3>What would you like to print today?</h3>
 	</header>
 	<div class="row">
-		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items">
-			<div class="thumbnail" ui-sref="{{category.ID}}">
-				<img src="http://placehold.it/300x300">
+		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.Name == 'Print Your File'">
+			<div class="thumbnail" ng-click="home.goToCategory(category)">
+				<img style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
+				<div class="caption text-center">
+					<h3>{{category.Name}}</h3>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.Name != 'Print Your File'">
+			<div class="thumbnail" ng-click="home.goToCategory(category)">
+				<img style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
 				<div class="caption text-center">
 					<h3>{{category.Name}}</h3>
 				</div>

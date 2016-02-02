@@ -16,7 +16,16 @@ function HomeConfig( $stateProvider ) {
 		})
 }
 
-function HomeController(CategoryList) {
+function HomeController($state, CategoryList) {
 	var vm = this;
 	vm.categories = CategoryList;
+
+	vm.goToCategory = function(category) {
+		if (category.xp && category.xp.workflow) {
+			$state.go(category.xp.workflow)
+		}
+		else {
+			$state.go('print');
+		}
+	};
 }

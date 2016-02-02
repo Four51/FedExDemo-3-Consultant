@@ -107,7 +107,7 @@ function BaseService($q, OrderCloud) {
     return service;
 }
 
-function BaseController($rootScope, CurrentUser, BaseService) {
+function BaseController($rootScope, $state, CurrentUser, BaseService) {
 	var vm = this;
     vm.currentUser = CurrentUser;
 
@@ -122,6 +122,15 @@ function BaseController($rootScope, CurrentUser, BaseService) {
     $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
         console.log(error);
     });
+
+    vm.goToCategory = function(category) {
+        if (category.xp && category.xp.workflow) {
+            $state.go(category.xp.workflow)
+        }
+        else {
+            $state.go('print');
+        }
+    };
 }
 
 function BaseLeftController(ComponentList) {

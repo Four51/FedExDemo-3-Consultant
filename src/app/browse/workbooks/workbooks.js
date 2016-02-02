@@ -7,6 +7,7 @@ angular.module( 'orderCloud' )
     .controller( 'WorkbooksPosterBannerCtrl', WorkbooksPosterBannerController )
     .controller( 'WorkbooksNewDocumentCtrl', WorkbooksNewDocumentController )
     .filter( 'workbookproducttype', workbookproducttype )
+    .filter( 'productTypes', productTypes )
 
 ;
 
@@ -290,5 +291,16 @@ function workbookproducttype() {
         });
 
         return results;
+    }
+}
+
+function productTypes() {
+    return function(name) {
+        function toTitleCase(n) {
+            var result = n.charAt(0).toUpperCase() + n.substr(1, n.length-1);
+            return result;
+        }
+
+        return ['print', 'document', 'workbook'].indexOf(name) > -1 ? 'Custom ' + toTitleCase(name) : name;
     }
 }

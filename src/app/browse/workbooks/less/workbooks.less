@@ -6,6 +6,13 @@
 .new-document-upload {
   border: 2px dashed black;
   border-radius: 25px;
+  max-height: 300px !important;
+}
+
+.existing-document {
+  max-height: 300px !important;
+  border: 2px dashed black;
+  border-radius: 25px;
 }
 
 .image-center {
@@ -19,7 +26,7 @@
   }
 }
 
-.browse-dropbox > div {
+.upload-box > div {
   flex-flow:column nowrap;
   display:flex;
   align-items:center;
@@ -27,9 +34,13 @@
   height:100%
 }
 
-.browse-dropbox i {
-  font-size: 10em;
+.upload-box i {
+  font-size: 8em;
   line-height:80%
+}
+
+.upload-box p {
+  margin-top: 20px;
 }
 
 .dropbox-blue {
