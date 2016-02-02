@@ -1,3 +1,25 @@
+<div class="row bs-wizard" style="border-bottom:0;">
+    <div class="col-xs-3 bs-wizard-step complete">
+        <div class="text-center bs-wizard-stepnum"><b>Review Your Cart</b></div>
+        <div class="progress"><div class="progress-bar"></div></div>
+        <a href="#" class="bs-wizard-dot"></a>
+    </div>
+    <div class="col-xs-3 bs-wizard-step disabled">
+        <div class="text-center bs-wizard-stepnum"><b>Delivery</b></div>
+        <div class="progress"><div class="progress-bar"></div></div>
+        <a href="#" class="bs-wizard-dot"></a>
+    </div>
+    <div class="col-xs-3 bs-wizard-step disabled">
+        <div class="text-center bs-wizard-stepnum"><b>Payment</b></div>
+        <div class="progress"><div class="progress-bar"></div></div>
+        <a href="#" class="bs-wizard-dot"></a>
+    </div>
+    <div class="col-xs-3 bs-wizard-step disabled">
+        <div class="text-center bs-wizard-stepnum"><b>Order Complete</b></div>
+        <div class="progress"><div class="progress-bar"></div></div>
+        <a href="#" class="bs-wizard-dot"></a>
+    </div>
+</div>
 <article class="container-fluid" id="cart_view">
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -11,21 +33,25 @@
         <div style="max-height:750px; overflow-y:auto;" ordercloud-infinite-scroll controlleras="cart">
             <table class="table table-hover">
                 <colgroup>
-                    <col style="width:100px;">
-                    <col style="width:100px;">
-                    <col>
-                    <col style="width:75px;">
-                    <col style="width:75px;">
+                    <col style="width:10%;">
+                    <col style="width:55%;">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:5%">
                 </colgroup>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-center">Unit Price</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr ng-repeat="lineItem in cart.lineItems.Items track by $index">
-                        <td>
-                            <form name="{{'lineitem_' + $index + '_quantity'}}" ng-submit="cart.updateQuantity(cart.order, lineItem)" class="form-group">
-                                <div ng-form="lineitem_quantity">
-                                    <input tabindex="{{$index + 1}}" ng-blur="cart.updateQuantity(cart.order, lineItem)" type="number" min="{{lineItem.Product.StandardPriceSchedule.MinQuantity}}" max="{{lineItem.Product.StandardPriceSchedule.MaxQuantity}}" required="true" class="form-control text-center" ng-model="lineItem.Quantity">
-                                </div>
-                            </form>
-                        </td>
                         <td>
                             <figure style="width: 100px;">
                                 <img ng-if="lineItem.Product.xp.image" class="img-responsive" ng-src="{{lineItem.Product.xp.image.URL}}" alt="Product Image">
@@ -36,10 +62,20 @@
                             <small class="text-muted">{{lineItem.ProductID}}</small>
                         </td>
                         <td>
+                            <form name="{{'lineitem_' + $index + '_quantity'}}" ng-submit="cart.updateQuantity(cart.order, lineItem)" class="form-group">
+                                <div ng-form="lineitem_quantity">
+                                    <input tabindex="{{$index + 1}}" ng-blur="cart.updateQuantity(cart.order, lineItem)" type="number" min="{{lineItem.Product.StandardPriceSchedule.MinQuantity}}" max="{{lineItem.Product.StandardPriceSchedule.MaxQuantity}}" required="true" class="form-control text-center" ng-model="lineItem.Quantity">
+                                </div>
+                            </form>
+                        </td>
+                        <td class="text-center">
+                            <small class="text-success">{{lineItem.LineTotal | currency}}</small>
+                        </td>
+                        <td class="text-center">
                             <small class="text-success">{{lineItem.LineTotal | currency}}</small>
                         </td>
                         <td>
-                            <div class="btn-group-vertical">
+                            <div class="btn-group-vertical" style="float: right;">
                                 <button ng-if="lineItem.Specs.length" class="btn btn-default" ui-sref="catalog.lineitem({lineitemid: lineItem.ID, specformid: lineItem.Product.xp.specform})">
                                     <i class="fa fa-edit text-warning"></i>
                                 </button>
@@ -53,7 +89,14 @@
             </table>
         </div>
         <div class="panel-footer">
-            <p class="lead">Subtotal: <span class="text-success pull-right">{{cart.order.Subtotal | currency}}</span></p>
+            <p class="lead">
+                <span class="pull-right">Estimated Price: <span class="text-success">{{cart.order.Subtotal | currency}}</span></span>
+                <br>
+                <span class="pull-right subtotal-subtext">Document and product prices displayed are estimated</span>
+                <br>
+                <span class="pull-right subtotal-subtext">and do not include shipping and packing &handling (if applicable) or tax.</span>
+            </p>
+
         </div>
     </div>
     <button type="button" ui-sref="checkout" class="btn btn-success pull-right">Checkout</button>
