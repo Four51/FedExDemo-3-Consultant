@@ -211,12 +211,34 @@ function WorkbooksService($q, Me, OrderCloud, Products, Categories, CurrentOrder
     return service;
 }
 
-function WorkbooksController(ProductList) {
+function WorkbooksController($scope, $state, DocumentsService, ProductList, CurrentUser) {
     var vm = this;
     vm.products = ProductList;
 
-    vm.browseDropbox = function() {
+    vm.newDocument = {};
 
+    vm.uploading = false;
+    $scope.$watch(function () {
+        if (vm.newDocument.xp && vm.newDocument.xp.document && vm.newDocument.xp.document.URL && !vm.uploading) {
+            vm.uploading = true;
+            DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser, 'workbook')
+                .then(function(productID) {
+                    $state.go('workbooks.workbook', {productID: productID})
+                });
+        }
+        return vm.newDocument.xp;
+    },function(value){
+        if (vm.newDocument.xp && vm.newDocument.xp.document && vm.newDocument.xp.document.URL && !vm.uploading) {
+            vm.uploading = true;
+            DocumentsService.CreateNewDocument(vm.newDocument, CurrentUser, 'workbook')
+                .then(function(productID) {
+                    $state.go('workbooks.workbook', {productID: productID})
+                });
+        }
+    });
+
+    vm.uploadDocument = function() {
+        $("#uploadbutton input").click();
     };
 }
 

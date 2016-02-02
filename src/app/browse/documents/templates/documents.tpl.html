@@ -25,7 +25,7 @@
                     <h3 class="item-name">{{product.Name || product.ID}}</h3>
                     <div>
                         <div class="text-center"ng-if="!product.xp.image">
-                            <i class="fa fa-file-image-o"></i>
+                            <i class="fa fa-file-o"></i>
                         </div>
                         <div ng-if="product.xp.image">
                             <img class="img-responsive" ng-src="{{product.xp.image.URL}}" alt="Product Image">
@@ -37,7 +37,7 @@
                 <div class="product-item new-document-upload upload-box">
                     <div class="text-center">
                         <i class="fa fa-inbox text-primary"></i>
-                        <p>For best results, upload a high-resolution PDF.</p>
+                        <p>For best results, upload a high-resolution file.</p>
                         <p><button type="button" class="btn btn-primary" ng-click="documents.uploadDocument()">Upload from your computer</button></p>
                         <div style="display: none;" id="uploadbutton">
                             <ordercloud-file-upload model="documents.newDocument" keyname="document" label="Document" extensions="pdf, doc, docx, ppt, pptx" invalid-extension="x"></ordercloud-file-upload>

@@ -1,8 +1,24 @@
 <ui-view>
+    <div class="row bs-wizard" style="border-bottom:0;">
+        <div class="col-xs-4 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Select Product</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+
+        <div class="col-xs-4 bs-wizard-step disabled">
+            <div class="text-center bs-wizard-stepnum"><b>Set Options</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+
+        <div class="col-xs-4 bs-wizard-step disabled">
+            <div class="text-center bs-wizard-stepnum"><b>Add to Cart</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+    </div>
     <article class="container-fluid">
-        <h3 class="page-header">
-            Workbooks
-        </h3>
         <div class="product-list row">
             <div class="col-md-3" ng-repeat="product in promotional.products">
                 <div class="product-item" ui-sref="promotionalproducts.product({productID: product.ID})">
@@ -16,7 +32,6 @@
                             <img class="img-responsive" ng-src="{{product.xp.image.URL}}" alt="Product Image">
                         </div>
                     </div>
-                    <div class="item-description" ng-if="product.Description"><p>{{product.Description}}</p></div>
                 </div>
             </div>
         </div>
