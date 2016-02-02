@@ -38,7 +38,7 @@ gulp.task('test', function(done) {
 
 gulp.task('watch:js', function() {
     console.log("running 'watch:js' task");
-    gulp.watch(config.app_files.js, gulp.parallel(gulp.series('build:js', 'b_m:configjs', 'build:assets', 'build:styles', 'build:inject', function() {browserSync.reload()}), 'test'));
+    gulp.watch(config.app_files.js, gulp.parallel(gulp.series('build:js', 'b_m:configjs', 'build:assets', 'build:styles', 'build:inject', function() {browserSync.reload()})));
     gulp.watch(vendorJS, gulp.series('build:js_bower', 'build:inject', function() {browserSync.reload()}));
 });
 
@@ -57,4 +57,4 @@ gulp.task('watch:other', function() {
     //TODO: need to add new/deleted file watch if it ever comes available in gulp 4.0
 
 
-gulp.task('watch', gulp.parallel('dev', 'watch:js', 'watch:assets', 'watch:other', 'test'));
+gulp.task('watch', gulp.parallel('dev', 'watch:js', 'watch:assets', 'watch:other'));

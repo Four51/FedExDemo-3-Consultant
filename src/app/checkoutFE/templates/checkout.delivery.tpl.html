@@ -1,0 +1,72 @@
+<ui-view>
+    <div class="row bs-wizard" style="border-bottom:0;">
+        <div class="col-xs-3 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Review Your Cart</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Delivery</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step disabled">
+            <div class="text-center bs-wizard-stepnum"><b>Payment</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step disabled">
+            <div class="text-center bs-wizard-stepnum"><b>Order Complete</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+    </div>
+    <article class="container-fluid" id="delivery">
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <div style="display:inline-block; min-height:290px;" class="delivery-date">
+                        <div class="panel panel-default ship-address">
+                            <div class="panel-heading"><b>Shipping</b></div>
+                            <div class="panel-body">
+                                <div ng-if="!delivery.customShipping" class="form-group">
+                                    <div ng-if="delivery.shippingAddresses.length">
+                                        <label for="shipping_address">Shipping Address</label>
+                                        <select id="shipping_address" name="ShippingAddress" ng-change="delivery.SaveShippingAddress(delivery.currentOrder);" ng-model="delivery.currentOrder.ShippingAddressID" class="form-control" ng-options="address.ID as (address.AddressName || address.Street1 + ' ' + address.Street2) for address in delivery.shippingAddresses"></select>
+                                    </div>
+                                    <p id="address_paragraph" ng-if="delivery.currentOrder.ShippingAddressID">{{delivery.currentOrder.ShippingAddress | address: 'full'}}</p>
+                                </div>
+                                <div class="form-group">
+                                    <button ng-click="delivery.customShipping = true;" type="button" class="btn btn-success"><i class="fa fa-plus-circle"></i> Use Custom</button>
+                                </div>
+                                <div ng-if="delivery.customShipping">
+                                    <form class="form-group" ng-submit="delivery.SaveCustomAddress(delivery.currentOrder)" name="order_shipping">
+                                        <ordercloud-address-form address="delivery.address" isbilling="delivery.isAlsoBilling"></ordercloud-address-form>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label><input type="checkbox" ng-click="delivery.isAlsoBilling = false;" ng-model="delivery.saveAddress"> Save Address for Future Use</label>
+                                            </div>
+                                            <div ng-if="delivery.saveAddress" class="col-md-6">
+                                                <label><input type="checkbox" ng-model="delivery.isAlsoBilling"> Allow as Billing Address</label>
+                                            </div>
+                                        </div>
+                                        <button ng-disabled="order_shipping.address_form.$invalid" type="submit" class="btn btn-success pull-left">Submit</button>
+                                        <button ng-click="delivery.customShipping = false;" type="button" class="btn btn-danger pull-right">Cancel</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-show="delivery.currentOrder.ShippingAddressID">
+                            <h5><b>When do you need your order in your hands?</b></h5>
+                            <uib-datepicker ng-model="delivery.currentOrder.xp.DateNeeded" min-date="delivery.minDate" show-weeks="true" class="well well-sm" custom-class="getDayClass(date, mode)"></uib-datepicker>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <ordercloud-checkout-lineitems addresses="delivery.shippingAddresses" order="delivery.currentOrder"></ordercloud-checkout-lineitems>
+            <button type="button" class="btn btn-primary pull-right" ng-click="delivery.continue()" ng-disabled="!delivery.currentOrder.xp.DateNeeded || !delivery.currentOrder.xp.Shipper || !delivery.currentOrder.ShippingAddressID">Continue</button>
+        </div>
+    </article>
+</ui-view>

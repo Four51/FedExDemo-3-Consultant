@@ -13,7 +13,7 @@ angular.module('orderCloud')
 
 function checkoutConfig($stateProvider) {
 	$stateProvider
-		.state('checkout', {
+		.state('checkoutx', {
 			parent: 'base',
             data: {componentName: 'Checkout'},
 			url: '/checkout',

@@ -53,6 +53,10 @@
         </table>
     </div>
     <div class="panel-footer">
-        <p class="lead">Subtotal: <span class="text-success pull-right">{{order.Subtotal | currency}}</span></p>
+        <p>
+            <p>Subtotal: <span class="text-success pull-right">{{order.Subtotal | currency}}</span></p>
+            <p>Estimated Delivery: <span class="text-success pull-right">{{(order.xp.ShippingCost || 0) | currency}}</span></p>
+            <p>Total: <span class="text-success pull-right">{{(order.Subtotal + (order.xp.ShippingCost || 0)) | currency}}</span></p>
+        </p>
     </div>
 </div>

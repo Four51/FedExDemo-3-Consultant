@@ -1,0 +1,52 @@
+<div class="modal-header">
+    <h4 class="modal-title text-center">If you need it on {{dateNeeded.dateNeeded | date:short}}</h4>
+</div>
+<div class="modal-body">
+    <table class="table table-striped">
+        <colgroup>
+            <col style="width:5%;">
+            <col style="width:10%;">
+            <col style="width:65%">
+            <col style="width:20%">
+        </colgroup>
+        <tr>
+            <td>
+                <input type="radio" ng-model="dateNeeded.order.xp.Shipper" name="shipper" ng-value="'pickup'" />
+            </td>
+            <td>
+                <img src="assets/fedex_office.jpg" />
+            </td>
+            <td>
+                <p><b>Available between 7:30 AM - 9:00 PM</b></p>
+                <p>Pickup at FedEx Office Center</p>
+                <p class="text-center">
+                    <span>{{dateNeeded.randomAddress.Street1}}, Ste 103</span><br>
+                    <span>{{dateNeeded.randomAddress.City}}, {{dateNeeded.randomAddress.State}} {{dateNeeded.randomAddress.Zip}}</span>
+                </p>
+            </td>
+            <td>Free</td>
+        </tr>
+        <tr>
+            <td><input type="radio" ng-model="dateNeeded.order.xp.Shipper" name="shipper" ng-value="'endofday'" /></td>
+            <td><i class="fa fa-truck"></i></td>
+            <td>
+                <p><b>Arrives by end of business day</b></p>
+                <p>FedEx Ground US ®</p>
+            </td>
+            <td>{{9.99 | currency}}</td>
+        </tr>
+        <tr>
+            <td><input type="radio" ng-model="dateNeeded.order.xp.Shipper" name="shipper" ng-value="'local'" /></td>
+            <td><i class="fa fa-truck"></i></td>
+            <td>
+                <p><b>Arrives between 8:00 AM - 5:00 PM</b></p>
+                <p>Local Delivery</p>
+            </td>
+            <td>{{19.99 | currency}}</td>
+        </tr>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" type="button" ng-click="dateNeeded.cancel()">Cancel</button>
+    <button class="btn btn-primary" type="button" ng-click="dateNeeded.continue()" ng-disabled="!dateNeeded.order.xp.Shipper">Continue</button>
+</div>
