@@ -217,9 +217,9 @@ function CheckoutLineItemsController($scope, $q, OrderCloud, LineItemHelpers, Un
     });
 
     $scope.$watch(function() {
-        return $scope.order.ID;
+        return $scope.order ? $scope.order.ID : null;
     }, function() {
-        LineItemsInit($scope.order.ID)
+        LineItemsInit($scope.order.ID || null)
     });
 
     function LineItemsInit(OrderID) {

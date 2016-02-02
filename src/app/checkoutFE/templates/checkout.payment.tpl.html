@@ -1,1 +1,108 @@
-Test
+<ui-view>
+    <div class="row bs-wizard" style="border-bottom:0;">
+        <div class="col-xs-3 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Review Your Cart</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Delivery</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step complete">
+            <div class="text-center bs-wizard-stepnum"><b>Payment</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+        <div class="col-xs-3 bs-wizard-step disabled">
+            <div class="text-center bs-wizard-stepnum"><b>Order Complete</b></div>
+            <div class="progress"><div class="progress-bar"></div></div>
+            <a href="#" class="bs-wizard-dot"></a>
+        </div>
+    </div>
+    <article class="container-fluid" id="delivery">
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="panel-heading"><b>Payment</b></div>
+                        <div class="panel-body">
+                            <div ng-show="payment.currentOrder.CreditCardID">
+                                <p>{{payment.currentOrder.CreditCard.CardType + ' x' + payment.currentOrder.CreditCard.PartialAccountNumber}}</p>
+                                <button type="button" class="btn btn-success" ng-click="payment.changeCreditCard()">Change Credit Card</button>
+                            </div>
+                            <form ng-submit="payment.saveCreditCard(payment.currentOrder)" class="form-group" name="new_credit_card" ng-show="!payment.currentOrder.CreditCardID">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="cardholder_name">Cardholder Name</label>
+                                        <input id="cardholder_name" required="true" class="form-control" type="text" ng-model="payment.creditCard.CardholderName">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="cardtype">Card Type</label>
+                                        <select id="cardtype" required="true" class="form-control" ng-model="payment.creditCard.CardType" ng-options="type as type for type in payment.CreditCardTypes"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="cardnum">Account Number</label>
+                                        <input id="cardnum" type="text" class="form-control" ng-model="payment.creditCard.PartialAccountNumber">
+                                    </div>
+                                    <div class="form-group col-md-6" ng-init="open = false">
+                                        <label for="creditCardExpirationInput">Expiration Date</label>
+                                        <input class="form-control"
+                                               required="true"
+                                               type="text"
+                                               is-open="open"
+                                               uib-datepicker-popup="MM/yy"
+                                               datepicker-mode="'year'"
+                                               min-mode="'month'"
+                                               ng-click="open = !open"
+                                               id="creditCardExpirationInput"
+                                               datepicker-append-to-body="true"
+                                               show-weeks="false"
+                                               min-date="payment.today"
+                                               ng-model="payment.creditCard.ExpirationDate"/>
+                                    </div>
+                                </div>
+                                <button ng-disabled="new_credit_card.$invalid" type="submit" class="btn btn-success pull-left">Submit</button>
+                                <button ng-click="payment.createNewCard = false; payment.creditCard = null" type="button" class="btn btn-danger pull-right">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="panel-heading"><b>Billing Address</b></div>
+                        <div class="panel-body">
+                            <div ng-if="!payment.customAddress">
+                                <div class="form-group" ng-if="payment.billingAddresses.length">
+                                    <label for="billing_address">Billing Address</label>
+                                    <select id="billing_address" required="true" name="BillingAddress" ng-change="payment.SaveBillingAddress(checkout.currentOrder);" ng-model="payment.currentOrder.BillingAddressID" class="form-control" ng-options="address.ID as (address.AddressName || address.Street1 + ' ' + address.Street2) for address in payment.billingAddresses"></select>
+                                </div>
+                                <p id="address_paragraph" ng-if="payment.currentOrder.BillingAddress">{{payment.currentOrder.BillingAddress | address: 'full'}}</p>
+                            </div>
+                            <div class="form-group">
+                                <button ng-click="payment.customAddress = true;" type="button" class="btn btn-success"><i class="fa fa-plus-circle"></i> Use Custom</button>
+                            </div>
+                            <div ng-if="payment.customAddress">
+                                <form class="form-group" ng-submit="payment.SaveCustomAddress(checkout.currentOrder)" name="order_billing">
+                                    <ordercloud-address-form address="payment.address" isbilling="true"></ordercloud-address-form>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label><input type="checkbox" ng-model="payment.saveAddress"> Save Address for Future Use</label>
+                                        </div>
+                                    </div>
+                                    <button ng-disabled="order_billing.address_form.$invalid" type="submit" class="btn btn-success pull-left">Submit</button>
+                                    <button ng-click="payment.customAddress = false;" type="button" class="btn btn-danger pull-right">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <ordercloud-checkout-lineitems addresses="payment.shippingAddresses" order="payment.currentOrder"></ordercloud-checkout-lineitems>
+            <button type="button" class="btn btn-primary pull-right" ng-click="payment.continue()" ng-disabled="!payment.currentOrder.BillingAddressID || !payment.currentOrder.CreditCardID">Continue</button>
+        </div>
+    </article>
+</ui-view>

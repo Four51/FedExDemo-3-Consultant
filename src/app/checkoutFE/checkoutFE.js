@@ -55,7 +55,40 @@ function CheckoutFEConfig($stateProvider) {
             url: '/payment',
             templateUrl: 'checkoutFE/templates/checkout.payment.tpl.html',
             controller: 'PaymentCtrl',
-            controllerAs: 'payment'
+            controllerAs: 'payment',
+            resolve: {
+                Order: function($q, $state, toastr, CurrentOrder) {
+                    var dfd = $q.defer();
+                    CurrentOrder.Get()
+                        .then(function(order) {
+                            dfd.resolve(order)
+                        })
+                        .catch(function() {
+                            toastr.error('You do not have an active open order.', 'Error');
+                            if ($state.current.name.indexOf('checkout') > -1) {
+                                $state.go('home');
+                            }
+                            dfd.reject();
+                        });
+                    return dfd.promise;
+                },
+                BillingAddresses: function($q, Underscore, OrderCloud) {
+                    var dfd = $q.defer();
+                    OrderCloud.Me.ListAddresses()
+                        .then(function(data) {
+                            dfd.resolve(Underscore.where(data.Items, {Biling: true}));
+                        });
+                    return dfd.promise;
+                },
+                ShippingAddresses: function($q, OrderCloud, Underscore) {
+                    var dfd = $q.defer();
+                    OrderCloud.Me.ListAddresses()
+                        .then(function(data) {
+                            dfd.resolve(Underscore.where(data.Items, {Shipping:true}));
+                        });
+                    return dfd.promise;
+                }
+            }
         })
     ;
 }
@@ -197,9 +230,142 @@ function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, 
     };
 }
 
-function PaymentCtrl() {
+function PaymentCtrl($state, Order, toastr, BillingAddresses, ShippingAddresses, OrderCloud, CurrentOrder) {
     var vm = this;
+    vm.currentOrder = Order;
+    vm.billingAddresses = BillingAddresses;
+    vm.shippingAddresses = ShippingAddresses;
+    vm.SaveBillingAddress = SaveBillingAddress;
+    vm.SaveCustomAddress = SaveCustomAddress;
 
+    function SaveBillingAddress(order) {
+        if (order && order.BillingAddressID) {
+            OrderCloud.Orders.Patch(order.ID, {BillingAddressID: order.BillingAddressID})
+                .then(function() {
+                    $state.reload();
+                })
+                .catch(function() {
+                    $exceptionHandler(ex);
+                });
+        }
+    }
+
+    function SaveCustomAddress(order) {
+        if (vm.saveAddress) {
+            OrderCloud.Addresses.Create(vm.address)
+                .then(function(address) {
+                    OrderCloud.Me.Get()
+                        .then(function(me) {
+                            OrderCloud.Addresses.SaveAssignment({
+                                    AddressID: address.ID,
+                                    UserID: me.ID,
+                                    IsBilling: true,
+                                    IsShipping: false
+                                })
+                                .then(function() {
+                                    OrderCloud.Orders.SetBillingAddress(order.ID, vm.address)
+                                        .then(function() {
+                                            $state.reload();
+                                        })
+                                        .catch(function(ex) {
+                                            $exceptionHandler(ex);
+                                        });
+                                })
+                                .catch(function(ex) {
+                                    $exceptionHandler(ex);
+                                });
+                        })
+                        .catch(function(ex) {
+                            $exceptionHandler(ex);
+                        });
+                })
+                .catch(function(ex) {
+                    $exceptionHandler(ex);
+                });
+        }
+        else {
+            OrderCloud.Orders.SetBillingAddress(order.ID, vm.address)
+                .then(function() {
+                    $state.reload();
+                })
+                .catch(function(ex) {
+                    $exceptionHandler(ex);
+                });
+        }
+    }
+
+    vm.CreditCardTypes = [
+        'MasterCard',
+        'American Express',
+        'Discover',
+        'Visa'
+    ];
+    vm.creditCard = null;
+    vm.today = new Date();
+
+    vm.saveCreditCard = SaveCreditCard;
+    vm.setCreditCard = SetCreditCard;
+
+    function SaveCreditCard(order) {
+        // TODO: Needs to save the credit card with integration plug in
+        if (vm.creditCard) {
+            // This is just until Nick gives me the integration
+            vm.Token = 'cc';
+            if (vm.creditCard.PartialAccountNumber.length === 16) {
+                vm.creditCard.PartialAccountNumber = vm.creditCard.PartialAccountNumber.substr(vm.creditCard.PartialAccountNumber.length - 4);
+                OrderCloud.CreditCards.Create(vm.creditCard)
+                    .then(function(CreditCard) {
+                        OrderCloud.Me.Get()
+                            .then(function(me) {
+                                OrderCloud.CreditCards.SaveAssignment({
+                                        CreditCardID: CreditCard.ID,
+                                        UserID: me.ID
+                                    })
+                                    .then(function() {
+                                        OrderCloud.Orders.Patch(order.ID, {CreditCardID: CreditCard.ID})
+                                            .then(function() {
+                                                $state.reload();
+                                            });
+                                    });
+                            });
+                    });
+            }
+            else {
+                toastr.error('Invalid credit card number.', 'Error:');
+            }
+        }
+    }
+
+    function SetCreditCard(order) {
+        if (order.CreditCardID && order.PaymentMethod === 'CreditCard') {
+            OrderCloud.Orders.Patch(order.ID, {CreditCardID: order.CreditCardID})
+                .then(function() {
+                    $state.reload();
+                });
+        }
+    }
+
+    vm.changeCreditCard = function() {
+        vm.currentOrder.CreditCardID = null;
+    };
+
+    vm.continue = function() {
+        vm.currentOrder.PaymentMethod = 'CreditCard';
+        OrderCloud.Orders.Update(vm.currentOrder.ID, vm.currentOrder)
+            .then(function(o) {
+                OrderCloud.Orders.Submit(vm.currentOrder.ID)
+                    .then(function() {
+                        CurrentOrder.Remove()
+                            .then(function(){
+                                $state.go('orderReview', {orderid: vm.currentOrder.ID});
+                            })
+                    })
+                    .catch(function(ex) {
+                        $exceptionHandler(ex);
+                    });
+            });
+
+    };
 }
 
 function DateNeededCtrl($uibModalInstance, DateNeeded, Order) {
