@@ -60,13 +60,19 @@ function CartConfig($stateProvider) {
         });
 }
 
-function CartController($q, $rootScope, OrderCloud, Order, LineItemsList, LineItemHelpers) {
+function CartController($q, $rootScope, OrderCloud, Order, BaseService, LineItemsList, LineItemHelpers) {
     var vm = this;
     vm.order = Order;
     vm.lineItems = LineItemsList;
     vm.removeItem = LineItemHelpers.RemoveItem;
     vm.updateQuantity = LineItemHelpers.UpdateQuantity;
     vm.pagingfunction = PagingFunction;
+
+    angular.forEach(vm.lineItems.Items, function(lineItem) {
+        lineItem.Markup = BaseService.CalculateLineItemMarkups(lineItem);
+    });
+
+    vm.order.Markup = BaseService.CalculateTotalMarkup(vm.lineItems.Items);
 
     function PagingFunction() {
         var dfd = $q.defer();
@@ -93,7 +99,7 @@ function CartController($q, $rootScope, OrderCloud, Order, LineItemsList, LineIt
     });
 }
 
-function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, CurrentOrder) {
+function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, BaseService, CurrentOrder) {
     var vm = this;
     vm.LineItems = {};
     vm.Order = null;
@@ -127,6 +133,10 @@ function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, Current
                             vm.LineItems.Items = [].concat(vm.LineItems.Items, result.Items);
                             vm.LineItems.Meta = result.Meta;
                         });
+                        angular.forEach(vm.LineItems.Items, function(lineItem) {
+                            lineItem.Markup = BaseService.CalculateLineItemMarkups(lineItem);
+                        });
+                        vm.Order.Markup = BaseService.CalculateTotalMarkup(vm.LineItems.Items);
                         dfd.resolve(LineItemHelpers.GetProductInfo(vm.LineItems.Items.reverse()));
                     });
             });
@@ -150,6 +160,11 @@ function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, Current
                 vm.Order = null;
                 vm.LineItems = null;
             })
+    });
+
+    $rootScope.$on('RemoveMiniCartOrder', function() {
+        vm.Order = null;
+        vm.LineItems = null
     });
 }
 

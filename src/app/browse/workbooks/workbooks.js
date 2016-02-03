@@ -155,7 +155,7 @@ function WorkbooksService($q, Me, OrderCloud, Products, Categories, CurrentOrder
         function AddLineItem(order) {
             var lineItem = {
                 ProductID: product.ID,
-                Quantity: 1,
+                Quantity: product.Quantity,
                 xp: {
                     Product: {
                         Group: 'Workbook',
@@ -247,21 +247,21 @@ function WorkbooksDocumentController($sce, $state, $rootScope, Product, Workbook
     vm.product = Product;
     vm.productPreviewUrl = (vm.product.xp && vm.product.xp.document && vm.product.xp.document.URL) ? $sce.trustAsResourceUrl('https://docs.google.com/gview?url=' + vm.product.xp.document.URL + '&embedded=true') : null;
 
-    vm.binding = ['None', 'Staple', 'Coil Binding & Covers', 'Comb Binding & Covers', 'Binder & Spine'];
-    vm.stapleOptions = ['Top Left Staples', 'Top Double Stapled', 'Side Double Stapled'];
-    vm.binderColors = ['Black', 'White'];
-    vm.binderSizes = ['Half Inch', 'One Inch', 'One and One Half Inch', 'Two Inches', 'Three Inches'];
-    vm.paperColors = ['Ultra Bright White', 'Gloss Cover', 'Ivory', 'Canary', 'Pastel Blue', 'Green', 'Red', 'Sun Yellow'];
-    vm.printColors = ['Full Color', 'Black', 'Color first page, Black remaining pages'];
-    vm.paperOptions = ['General Use Papers', 'Card and Cover Stocks', 'Executive and Specialty Papers'];
-    vm.paperOptions = ['Laser (32 lb.)', 'Laser 60 lb.', 'Laser Recycled (24 lb.)'];
-    vm.colorPaperOptions = ['Ivory', 'Canary', 'Salmon'];
-    vm.sides = ['Single', 'Double'];
+    vm.binding = [{Name: 'None', Markup: 0}, {Name: 'Staple', Markup: 0.49}, {Name: 'Coil Binding & Covers', Markup: 1.00}, {Name: 'Comb Binding & Covers', Markup: 0.79}, {Name: 'Binder & Spine', Markup: 1.29}];
+    vm.stapleOptions = [{Name: 'Top Left Staples', Markup: 0}, {Name: 'Top Double Stapled', Markup: 0}, {Name: 'Side Double Stapled', Markup: 0}];
+    vm.binderColors = [{Name: 'Black', Markup: 0}, {Name: 'White', Markup: 0}];
+    vm.binderSizes = [{Name: 'Half Inch', Markup: 0}, {Name: 'One Inch', Markup: 0}, {Name: 'One and One Half Inch', Markup: 0}, {Name: 'Two Inches', Markup: 0}, {Name: 'Three Inches', Markup: 0}];
+    vm.paperColors = [{Name: 'Ultra Bright White', Markup: 0}, {Name: 'Gloss Cover', Markup: 0}, {Name: 'Ivory', Markup: 0}, {Name: 'Canary', Markup: 0}, {Name: 'Pastel Blue', Markup: 0}, {Name: 'Green', Markup: 0}, {Name: 'Red', Markup: 0}];
+    vm.printColors = [{Name: 'Full Color', Markup: 0.39}, {Name: 'Black', Markup: 0}, {Name: 'Color first page, Black remaining pages', Markup: 0}];
+    vm.paperOptions = [{Name: 'General Use Papers', Markup: 0}, {Name: 'Card and Cover Stocks', Markup: 0}, {Name: 'Executive and Specialty Papers', Markup: 0}];
+    vm.paperOptions = [{Name: 'Laser (32 lb.)', Markup: 0.42}, {Name: 'Laser 60 lb.', Markup: 0.63}, {Name: 'Laser Recycled (24 lb.)', Markup: 0}];
+    vm.colorPaperOptions = [{Name: 'Ivory', Markup: 2.10}, {Name: 'Canary', Markup: 2.10}, {Name: 'Salmon', Markup: 2.10}];
+    vm.sidePiece = [{Name: 'Single', Markup: 0}, {Name: 'Double', Markup: 0}];
 
     vm.customizationOptions = {};
-    vm.SideCount = 'Single';
-    vm.customizationOptions.PrintColor = 'Full Color';
-    vm.customizationOptions.Binding = 'None';
+    vm.customizationOptions.SideCount = vm.sidePiece[0];
+    vm.customizationOptions.PrintColor = vm.printColors[0];
+    vm.customizationOptions.Binding = vm.binding[0];
 
     vm.submit = function() {
         WorkbooksService.AddWorkbookToOrder(vm.product, vm.customizationOptions)

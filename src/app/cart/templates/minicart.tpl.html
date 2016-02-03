@@ -18,7 +18,7 @@
                         <small class="text-muted">{{lineItem.ProductID}}</small></br>
                     </td>
                     <td style="padding-right: 25px;">
-                        <b class="text-success">{{lineItem.LineTotal | currency}}</b>
+                        <b class="text-success">{{lineItem.LineTotal + lineItem.Markup | currency}}</b>
                     </td>
                 </tr>
             </table>

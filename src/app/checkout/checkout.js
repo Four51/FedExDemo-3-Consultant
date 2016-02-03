@@ -197,7 +197,7 @@ function CheckoutLineItemsListDirective() {
     };
 }
 
-function CheckoutLineItemsController($scope, $q, OrderCloud, LineItemHelpers, Underscore) {
+function CheckoutLineItemsController($scope, $q, OrderCloud, LineItemHelpers, Underscore, BaseService) {
     var vm = this;
     vm.lineItems = {};
     vm.UpdateQuantity = LineItemHelpers.UpdateQuantity;
@@ -226,6 +226,11 @@ function CheckoutLineItemsController($scope, $q, OrderCloud, LineItemHelpers, Un
         OrderCloud.LineItems.Get(OrderID)
             .then(function(data) {
                 vm.lineItems = data;
+                angular.forEach(vm.lineItems.Items, function(lineItem) {
+                    lineItem.Markup = BaseService.CalculateLineItemMarkups(lineItem);
+                });
+
+                $scope.order.Markup = BaseService.CalculateTotalMarkup(vm.lineItems.Items);
                 LineItemHelpers.GetProductInfo(vm.lineItems.Items);
             });
     }

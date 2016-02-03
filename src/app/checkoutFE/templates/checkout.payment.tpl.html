@@ -102,7 +102,7 @@
         </div>
         <div class="col-sm-4">
             <ordercloud-checkout-lineitems addresses="payment.shippingAddresses" order="payment.currentOrder"></ordercloud-checkout-lineitems>
-            <button type="button" class="btn btn-primary pull-right" ng-click="payment.continue()" ng-disabled="!payment.currentOrder.BillingAddressID || !payment.currentOrder.CreditCardID">Continue</button>
+            <button type="button" class="btn btn-primary pull-right" ng-click="payment.continue()" ng-disabled="!payment.currentOrder.BillingAddressID || !payment.currentOrder.CreditCardID">Submit</button>
         </div>
     </article>
 </ui-view>

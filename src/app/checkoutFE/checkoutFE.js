@@ -93,14 +93,27 @@ function CheckoutFEConfig($stateProvider) {
     ;
 }
 
-function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, OrderShipAddress, OrderShippingAddress, ShippingAddresses) {
+function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, OrderShipAddress, BaseService, LineItems, OrderShippingAddress, ShippingAddresses) {
     var vm = this;
+
+    function getMarkups() {
+        LineItems.List(vm.currentOrder.ID, 1, 100)
+            .then(function(data) {
+                var lineItems = data.Items;
+                angular.forEach(lineItems, function(lineItem) {
+                    lineItem.Markup = BaseService.CalculateLineItemMarkups(lineItem);
+                });
+                vm.currentOrder.Markup = BaseService.CalculateTotalMarkup(lineItems);
+            });
+    }
 
     vm.currentOrder = Order;
     vm.currentOrder.ShippingAddressID = OrderShipAddress ? OrderShipAddress.ID : null;
     vm.currentOrder.ShippingAddress = OrderShipAddress;
     vm.shippingAddresses = ShippingAddresses;
     vm.isMultipleAddressShipping = true;
+
+    getMarkups();
 
     vm.minDate = new Date();
     if (!vm.currentOrder.xp) vm.currentOrder.xp = {};
@@ -118,6 +131,7 @@ function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, 
         vm.currentOrder = order;
         vm.currentOrder.ShippingAddressID = address.ID;
         vm.currentOrder.ShippingAddress = address;
+        getMarkups();
     });
 
     $rootScope.$on('OC:UpdateOrder', function(event, OrderID) {
@@ -125,6 +139,7 @@ function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, 
             .then(function(data) {
                 vm.currentOrder.Subtotal = data.Subtotal;
                 vm.currentOrder.xp = vm.currentOrder.xp ? data.xp : {};
+                getMarkups();
             });
     });
 
@@ -215,6 +230,7 @@ function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, 
                     .then(function(data) {
                         vm.currentOrder = data;
                         vm.currentOrder.ShippingAddressID = order.ShippingAddress.ID;
+                        getMarkups();
                     });
             }, function () {
                 console.log('cancelled');
@@ -230,13 +246,26 @@ function DeliveryCtrl($rootScope, $scope, $state, $uibModal, Order, OrderCloud, 
     };
 }
 
-function PaymentCtrl($state, Order, toastr, BillingAddresses, ShippingAddresses, OrderCloud, CurrentOrder) {
+function PaymentCtrl($state, $rootScope, Order, toastr, BillingAddresses, ShippingAddresses, OrderCloud, CurrentOrder, LineItems, BaseService) {
     var vm = this;
     vm.currentOrder = Order;
     vm.billingAddresses = BillingAddresses;
     vm.shippingAddresses = ShippingAddresses;
     vm.SaveBillingAddress = SaveBillingAddress;
     vm.SaveCustomAddress = SaveCustomAddress;
+
+    function getMarkups() {
+        LineItems.List(vm.currentOrder.ID, 1, 100)
+            .then(function(data) {
+                var lineItems = data.Items;
+                angular.forEach(lineItems, function(lineItem) {
+                    lineItem.Markup = BaseService.CalculateLineItemMarkups(lineItem);
+                });
+                vm.currentOrder.Markup = BaseService.CalculateTotalMarkup(lineItems);
+            });
+    }
+
+    getMarkups();
 
     function SaveBillingAddress(order) {
         if (order && order.BillingAddressID) {
@@ -357,6 +386,7 @@ function PaymentCtrl($state, Order, toastr, BillingAddresses, ShippingAddresses,
                     .then(function() {
                         CurrentOrder.Remove()
                             .then(function(){
+                                $rootScope.$broadcast('RemoveMiniCartOrder');
                                 $state.go('orderReview', {orderid: vm.currentOrder.ID});
                             })
                     })

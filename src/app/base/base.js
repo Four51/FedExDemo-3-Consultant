@@ -103,7 +103,9 @@ function BaseConfig( $stateProvider ) {
 
 function BaseService($q, OrderCloud) {
     var service = {
-        GetRegistrationRequests: _getRegistrationRequests
+        GetRegistrationRequests: _getRegistrationRequests,
+        CalculateLineItemMarkups: _calculateLineItemMarkups,
+        CalculateTotalMarkup: _calculateTotalMarkup
     };
 
     function _getRegistrationRequests() {
@@ -115,6 +117,30 @@ function BaseService($q, OrderCloud) {
             });
 
         return deferred.promise;
+    }
+
+    function _calculateLineItemMarkups(lineItem) {
+        var markup = 0;
+
+        if (lineItem.xp && lineItem.xp.CustomizationOptions) {
+            angular.forEach(lineItem.xp.CustomizationOptions, function(value, key) {
+               if (value.Markup) markup += (value.Markup * lineItem.Quantity * 21); //21 pages in demo document
+            });
+        }
+
+        return markup;
+    }
+
+    function _calculateTotalMarkup(lineItems) {
+        var markup = 0;
+
+        angular.forEach(lineItems, function(lineItem) {
+            if (lineItem.Markup) {
+                markup += lineItem.Markup;
+            }
+        });
+
+        return markup;
     }
 
     return service;
