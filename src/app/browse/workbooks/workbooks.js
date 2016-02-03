@@ -254,8 +254,8 @@ function WorkbooksDocumentController($sce, $state, $rootScope, Product, Workbook
     vm.paperColors = ['Ultra Bright White', 'Gloss Cover', 'Ivory', 'Canary', 'Pastel Blue', 'Green', 'Red', 'Sun Yellow'];
     vm.printColors = ['Full Color', 'Black', 'Color first page, Black remaining pages'];
     vm.paperOptions = ['General Use Papers', 'Card and Cover Stocks', 'Executive and Specialty Papers'];
-    vm.paperTypes = ['Laser (24 lb.)', 'Laser (32 lb.)', 'Laser 60 lb.', 'Laser Recycled (24 lb.)', '30% Recycled', '100% Recycled', 'Gloss Text', 'Standard White'];
-    vm.colorPaperOptions = ['Ivory', 'Canary', 'Salmon', 'Orchid', 'Patel Blue', 'Green'];
+    vm.paperOptions = ['Laser (32 lb.)', 'Laser 60 lb.', 'Laser Recycled (24 lb.)'];
+    vm.colorPaperOptions = ['Ivory', 'Canary', 'Salmon'];
     vm.sides = ['Single', 'Double'];
 
     vm.customizationOptions = {};

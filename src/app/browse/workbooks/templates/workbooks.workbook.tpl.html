@@ -27,8 +27,8 @@
         </div>
         <div class="col-sm-4">
             <form name="workbooksform" ng-submit="workbooksDocument.submit()">
-                <uib-accordion close-others="false">
-                    <uib-accordion-group class="panel-accordion" is-open="workbooksDocument.paper">
+                <uib-accordion>
+                    <uib-accordion-group class="panel-accordion">
                         <uib-accordion-heading>
                             Print Color
                         </uib-accordion-heading>
@@ -36,11 +36,12 @@
                             <select class="form-control" ng-model="workbooksDocument.customizationOptions.PrintColor" ng-options="color as color for color in workbooksDocument.printColors" ng-required="false"></select>
                         </div>
                     </uib-accordion-group>
-                    <uib-accordion-group class="panel-accordion" is-open="workbooksDocument.paper">
+                    <uib-accordion-group class="panel-accordion">
                         <uib-accordion-heading>
                             Paper Selection
                         </uib-accordion-heading>
                         <div class="form-group">
+                            <label>Paper Options</label>
                             <select class="form-control" ng-model="workbooksDocument.customizationOptions.PaperSelection" ng-options="paper as paper for paper in workbooksDocument.paperOptions" ng-required="false"></select>
                         </div>
                         <div class="form-group" ng-if="workbooksDocument.customizationOptions.PrintColor == 'Black'">
