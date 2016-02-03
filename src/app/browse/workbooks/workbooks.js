@@ -255,11 +255,13 @@ function WorkbooksDocumentController($sce, $state, $rootScope, Product, Workbook
     vm.printColors = ['Full Color', 'Black', 'Color first page, Black remaining pages'];
     vm.paperOptions = ['General Use Papers', 'Card and Cover Stocks', 'Executive and Specialty Papers'];
     vm.paperTypes = ['Laser (24 lb.)', 'Laser (32 lb.)', 'Laser 60 lb.', 'Laser Recycled (24 lb.)', '30% Recycled', '100% Recycled', 'Gloss Text', 'Standard White'];
+    vm.colorPaperOptions = ['Ivory', 'Canary', 'Salmon', 'Orchid', 'Patel Blue', 'Green'];
+    vm.sides = ['Single', 'Double'];
 
-    vm.customizationOptions = {
-        PrintColor: 'Full Color',
-        Binding: 'None'
-    };
+    vm.customizationOptions = {};
+    vm.SideCount = 'Single';
+    vm.customizationOptions.PrintColor = 'Full Color';
+    vm.customizationOptions.Binding = 'None';
 
     vm.submit = function() {
         WorkbooksService.AddWorkbookToOrder(vm.product, vm.customizationOptions)
@@ -268,6 +270,9 @@ function WorkbooksDocumentController($sce, $state, $rootScope, Product, Workbook
                 $state.go('cart');
             });
     };
+
+    vm.paper = true;
+
 }
 
 function WorkbooksPosterBannerController($state, WorkbooksService, Product) {
