@@ -27,11 +27,29 @@
   margin-left: -@dashboard-leftnav-width;
   overflow:hidden;
   background-color:@dashboard-leftnav-bg;
+  color:white;
   border-right:1px solid @dashboard-leftnav-border;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
+  nav {
+    ul.nav.nav-pills.nav-stacked {
+      li.active {
+        a {
+          background-color:darken(@dashboard-leftnav-bg, 15);
+        }
+      }
+      a {
+        transition:background-color 200ms ease-in-out;
+        color:white;
+        &:hover,
+        &:focus {
+          background-color:darken(@dashboard-leftnav-bg, 3);
+        }
+      }
+    }
+  }
 }
 
 #DashboardContent {
@@ -79,7 +97,7 @@
 
 .navbar-flex {
   #BaseTop {
-    background-color:@navbar-default-bg;
+    background-color:#414141;
     border-bottom:1px solid @navbar-default-border;
     display: flex;
     flex-flow: row nowrap;
@@ -94,9 +112,9 @@
           display:block;
           line-height:@navbar-height - 20px;
           padding:@nav-link-padding;
-          color:@navbar-default-link-color;
+          color:#EBEBEB;
           &:hover {
-            background-color:@navbar-default-link-hover-bg;
+            background-color:#EBEBEB;
             color:@navbar-default-link-hover-color;
           }
           &.active,
