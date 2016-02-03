@@ -1,11 +1,13 @@
-<div class="container-fluid">
+<div class="container">
 	<header class="text-center">
 		<h3>What would you like to print today?</h3>
 	</header>
 	<div class="row">
 		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.ID == 'print'">
-			<div class="thumbnail" ng-click="home.goToCategory(category)">
-				<img class="img-responsive" style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
+			<div ng-click="home.goToCategory(category)">
+				<figure class="thumbnail">
+					<img class="img-responsive" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
+				</figure>
 				<div class="caption text-center">
 					<h3>{{category.Name}}</h3>
 					<small>{{category.Description}}</small>
@@ -13,8 +15,10 @@
 			</div>
 		</div>
 		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.ID != 'print'">
-			<div class="thumbnail" ng-click="home.goToCategory(category)">
-				<img class="img-responsive" style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
+			<div ng-click="home.goToCategory(category)">
+				<figure class="thumbnail">
+					<img class="img-responsive" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
+				</figure>
 				<div class="caption text-center">
 					<h3>{{category.Name}}</h3>
 					<small>{{category.Description}}</small>

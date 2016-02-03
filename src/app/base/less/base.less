@@ -35,14 +35,16 @@
   transition: all 0.5s ease;
   nav {
     ul.nav.nav-pills.nav-stacked {
+
       li.active {
         a {
+          color: #414141;
+
           background-color:darken(@dashboard-leftnav-bg, 15);
         }
       }
       a {
         transition:background-color 200ms ease-in-out;
-        color:white;
         &:hover,
         &:focus {
           background-color:darken(@dashboard-leftnav-bg, 3);
