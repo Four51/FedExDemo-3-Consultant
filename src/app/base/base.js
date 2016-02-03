@@ -83,6 +83,19 @@ function BaseConfig( $stateProvider ) {
                 },
                 CategoryList: function(OrderCloud) {
                     return OrderCloud.Categories.List(null, 'all');
+                },
+                Order: function($q, CurrentOrder) {
+                    var deferred = $q.defer();
+
+                    CurrentOrder.Get()
+                        .then(function(o) {
+                            deferred.resolve(o)
+                        })
+                        .catch(function() {
+                            deferred.resolve(null);
+                        });
+
+                    return deferred.promise;
                 }
             }
 		});
@@ -107,9 +120,10 @@ function BaseService($q, OrderCloud) {
     return service;
 }
 
-function BaseController($rootScope, $state, CurrentUser, BaseService) {
+function BaseController($rootScope, $state, CurrentUser, BaseService, Order) {
 	var vm = this;
     vm.currentUser = CurrentUser;
+    vm.currentOrder = Order;
 
     vm.requests = null;
     if (vm.currentUser.xp && vm.currentUser.xp.Admin) {

@@ -3,19 +3,21 @@
 		<h3>What would you like to print today?</h3>
 	</header>
 	<div class="row">
-		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.Name == 'Print Your File'">
+		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.ID == 'print'">
 			<div class="thumbnail" ng-click="home.goToCategory(category)">
 				<img style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
 				<div class="caption text-center">
 					<h3>{{category.Name}}</h3>
+					<small>{{category.Description}}</small>
 				</div>
 			</div>
 		</div>
-		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.Name != 'Print Your File'">
+		<div class="col-xs-6 col-md-3" ng-repeat="category in home.categories.Items" ng-if="category.ID != 'print'">
 			<div class="thumbnail" ng-click="home.goToCategory(category)">
 				<img style="min-height: 300px;" ng-src="{{category.xp.image.URL || 'http://placehold.it/300x300'}}">
 				<div class="caption text-center">
 					<h3>{{category.Name}}</h3>
+					<small>{{category.Description}}</small>
 				</div>
 			</div>
 		</div>

@@ -242,7 +242,7 @@ function WorkbooksController($scope, $state, DocumentsService, ProductList, Curr
     };
 }
 
-function WorkbooksDocumentController($sce, $state, Product, WorkbooksService) {
+function WorkbooksDocumentController($sce, $state, $rootScope, Product, WorkbooksService) {
     var vm = this;
     vm.product = Product;
     vm.productPreviewUrl = (vm.product.xp && vm.product.xp.document && vm.product.xp.document.URL) ? $sce.trustAsResourceUrl('https://docs.google.com/gview?url=' + vm.product.xp.document.URL + '&embedded=true') : null;
@@ -252,12 +252,19 @@ function WorkbooksDocumentController($sce, $state, Product, WorkbooksService) {
     vm.binderColors = ['Black', 'White'];
     vm.binderSizes = ['Half Inch', 'One Inch', 'One and One Half Inch', 'Two Inches', 'Three Inches'];
     vm.paperColors = ['Ultra Bright White', 'Gloss Cover', 'Ivory', 'Canary', 'Pastel Blue', 'Green', 'Red', 'Sun Yellow'];
+    vm.printColors = ['Full Color', 'Black', 'Color first page, Black remaining pages'];
+    vm.paperOptions = ['General Use Papers', 'Card and Cover Stocks', 'Executive and Specialty Papers'];
+    vm.paperTypes = ['Laser (24 lb.)', 'Laser (32 lb.)', 'Laser 60 lb.', 'Laser Recycled (24 lb.)', '30% Recycled', '100% Recycled', 'Gloss Text', 'Standard White'];
 
-    vm.customizationOptions = {};
+    vm.customizationOptions = {
+        PrintColor: 'Full Color',
+        Binding: 'None'
+    };
 
     vm.submit = function() {
         WorkbooksService.AddWorkbookToOrder(vm.product, vm.customizationOptions)
             .then(function() {
+                $rootScope.$broadcast('LineItemAddedToCart');
                 $state.go('cart');
             });
     };

@@ -27,7 +27,82 @@
         </div>
         <div class="col-sm-4">
             <form name="workbooksform" ng-submit="workbooksDocument.submit()">
-                <div class="panel panel-default">
+                <uib-accordion>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Print Color
+                        </uib-accordion-heading>
+                        <div class="form-group">
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.PrintColor" ng-options="color as color for color in workbooksDocument.printColors" ng-required="false"></select>
+                        </div>
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Paper Selection
+                        </uib-accordion-heading>
+                        <div class="form-group">
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.PaperSelection" ng-options="paper as paper for paper in workbooksDocument.paperOptions" ng-required="false"></select>
+                        </div>
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Binding, Stapling & Covers
+                        </uib-accordion-heading>
+                        <div class="form-group">
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.Binding" ng-options="binding as binding for binding in workbooksDocument.binding" ng-required="false"></select>
+                        </div>
+                        <div class="form-group" ng-if="workbooksDocument.customizationOptions.Binding == 'Staple'">
+                            <label>Staple Option</label>
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.StapleOption" ng-options="staple as staple for staple in workbooksDocument.stapleOptions" ng-required="workbooksDocument.customizationOptions.Binding == 'Staple'"></select>
+                        </div>
+                        <div class="form-group" ng-if="workbooksDocument.customizationOptions.Binding == 'Coil Binding & Covers' || workbooksDocument.customizationOptions.Binding == 'Comb Binding & Covers'">
+                            <label>Cover Option</label>
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.CoverColor" ng-options="color as color for color in workbooksDocument.paperColors" ng-required="workbooksDocument.customizationOptions.Binding == 'Coil Binding & Covers' || workbooksDocument.customizationOptions.Binding == 'Comb Binding & Covers'"></select>
+                        </div>
+                        <div class="form-group" ng-if="workbooksDocument.customizationOptions.Binding == 'Binder & Spine'">
+                            <label>Color</label>
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.BinderColor" ng-options="color as color for color in workbooksDocument.binderColors" ng-required="workbooksDocument.customizationOption.Binding == 'Binder & Spine'"></select>
+                            <label>Size</label>
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.BinderSize" ng-options="size as size for size in workbooksDocument.binderSizes" ng-required="workbooksDocument.customizationOption.Binding == 'Binder & Spine'"></select>
+                        </div>
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Tabs and Inserts
+                        </uib-accordion-heading>
+                        <div class="form-group" ng-if="workbooksDocument.customizationOptions.Binding && workbooksDocument.customizationOptions.Binding != 'None' && workbooksDocument.customizationOptions.Binding != 'Staple'">
+                            <label>First Line of Tab</label>
+                            <input type="text" class="form-control" ng-model="workbooksDocument.customizationOptions.TabFirstLine" />
+                            <label>Second Line of Tab</label>
+                            <input type="text" class="form-control" ng-model="workbooksDocument.customizationOptions.TabSecondLine" />
+                            <label>Paper Color</label>
+                            <select class="form-control" ng-model="workbooksDocument.customizationOptions.TabColor" ng-options="color as color for color in workbooksDocument.binderColors"></select>
+                        </div>
+                        <div class="alert alert-info" ng-if="!workbooksDocument.customizationOptions.Binding || workbooksDocument.customizationOptions.Binding == 'None' || workbooksDocument.customizationOptions.Binding == 'Staple'">
+                            <p>Tabs are unavailable if you have selected Stapling.</p>
+                            <p>Tabs are available only if Binding of 3-Hole Punching is selected.</p>
+                        </div>
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Title
+                        </uib-accordion-heading>
+
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Title
+                        </uib-accordion-heading>
+
+                    </uib-accordion-group>
+                    <uib-accordion-group class="panel-accordion">
+                        <uib-accordion-heading>
+                            Title
+                        </uib-accordion-heading>
+
+                    </uib-accordion-group>
+                </uib-accordion>
+                <!--<div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Binding, Stapling & Covers</h3>
                     </div>
@@ -69,7 +144,7 @@
                             <p>Tabs are available only if Binding of 3-Hole Punching is selected.</p>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <div>
                     <button ng-disabled="workbooksform.$invalid" class="btn btn-success pull-right" type="submit">
                         <i class="fa fa-plus-circle"></i>

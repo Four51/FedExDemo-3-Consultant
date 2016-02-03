@@ -191,7 +191,7 @@ function DocumentsController($state, $scope, ProductList, DocumentsService, Curr
     };
 }
 
-function DocumentsDocumentController($sce, $state, DocumentsService, Product) {
+function DocumentsDocumentController($sce, $state, $rootScope, DocumentsService, Product) {
     var vm = this;
     vm.product = Product;
     vm.productPreviewUrl = (vm.product.xp && vm.product.xp.document && vm.product.xp.document.URL) ? $sce.trustAsResourceUrl('https://docs.google.com/gview?url=' + vm.product.xp.document.URL + '&embedded=true') : null;
@@ -199,6 +199,7 @@ function DocumentsDocumentController($sce, $state, DocumentsService, Product) {
     vm.submit = function() {
         DocumentsService.AddDocumentToOrder(vm.product)
             .then(function() {
+                $rootScope.$broadcast('LineItemAddedToCart');
                 $state.go('cart');
             });
     };

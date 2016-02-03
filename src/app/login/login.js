@@ -16,7 +16,7 @@ function LoginConfig( $stateProvider ) {
         })
 }
 
-function LoginService( $q, $window, OrderCloud, $resource, $timeout, BuyerID, clientid, apiurl ) {
+function LoginService( $q, $window, OrderCloud, $resource, $timeout, BuyerID, clientid, apiurl, buyerid ) {
     return {
         SendVerificationCode: _sendVerificationCode,
         ResetPassword: _resetPassword,
@@ -101,7 +101,7 @@ function LoginService( $q, $window, OrderCloud, $resource, $timeout, BuyerID, cl
                 "SecurityProfileID": "FedExFull"
             };
 
-            $timeout($resource(apiurl + '/v1/buyers/:buyerID/users', {'buyerID': BuyerID.Get()}, {
+            $timeout($resource(apiurl + '/v1/buyers/:buyerID/users', {'buyerID': buyerid}, {
                         callApi: {
                         method: 'POST',
                         headers: {

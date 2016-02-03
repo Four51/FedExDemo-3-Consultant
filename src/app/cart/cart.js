@@ -24,7 +24,7 @@ function CartConfig($stateProvider) {
                             dfd.resolve(order)
                         })
                         .catch(function() {
-                            toastr.error('You do not have an active open order.', 'Error');
+                            //toastr.error('You do not have an active open order.', 'Error');
                             if ($state.current.name === 'cart') {
                                 $state.go('home');
                             }
@@ -103,6 +103,9 @@ function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, Current
         .then(function(data) {
             vm.Order = data;
             if (data) getLineItems(data);
+        })
+        .catch(function() {
+            vm.Order = null;
         });
 
     function getLineItems(order) {
@@ -134,8 +137,19 @@ function MiniCartController($q, $rootScope, OrderCloud, LineItemHelpers, Current
         CurrentOrder.Get()
             .then(function(order) {
                 getLineItems(order);
-                vm.showLineItems = true;
+                vm.showLineItems = false;
             });
+    });
+
+    $rootScope.$on('LineItemDelete', function() {
+        CurrentOrder.Get()
+            .then(function(order) {
+                getLineItems(order);
+            })
+            .catch(function() {
+                vm.Order = null;
+                vm.LineItems = null;
+            })
     });
 }
 

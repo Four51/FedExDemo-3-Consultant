@@ -47,10 +47,12 @@ function LineItemFactory($rootScope, $q, $state, $uibModal, Underscore, OrderClo
                         if (!data.Items.length) {
                             CurrentOrder.Remove();
                             OrderCloud.Orders.Delete(Order.ID).then(function () {
+                                $rootScope.$broadcast('LineItemDelete');
                                 $state.reload();
                             });
                         }
                         else {
+                            $rootScope.$broadcast('LineItemDelete');
                             $state.reload();
                         }
                     });

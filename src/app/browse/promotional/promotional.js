@@ -150,7 +150,7 @@ function PromotionalController(PromotionalService, ProductList) {
     vm.products = ProductList;
 }
 
-function PromotionalProductController($state, $scope, Product, PromotionalService) {
+function PromotionalProductController($state, $rootScope, $scope, Product, PromotionalService) {
     var vm = this;
     vm.product = Product;
 
@@ -177,6 +177,7 @@ function PromotionalProductController($state, $scope, Product, PromotionalServic
     vm.submit = function() {
         PromotionalService.AddProductToOrder(vm.product)
             .then(function() {
+                $rootScope.$broadcast('LineItemAddedToCart');
                 $state.go('cart');
             });
     };
