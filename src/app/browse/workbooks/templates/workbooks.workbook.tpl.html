@@ -83,14 +83,30 @@
                         <uib-accordion-heading>
                             Tabs and Inserts
                         </uib-accordion-heading>
-                        <div class="form-group" ng-show="workbooksDocument.customizationOptions.Binding.Name && workbooksDocument.customizationOptions.Binding.Name != 'None' && workbooksDocument.customizationOptions.Binding.Name != 'Staple'">
+                        <uib-accordion ng-show="workbooksDocument.customizationOptions.Binding.Name && workbooksDocument.customizationOptions.Binding.Name != 'None' && workbooksDocument.customizationOptions.Binding.Name != 'Staple'">
+                            <uib-accordion-group class="panel-accordion" ng-repeat="tab in workbooksDocument.customizationOptions.Tabs" is-open="true">
+                                <uib-accordion-heading>Tab {{$index + 1}}</uib-accordion-heading>
+                                <div class="form-group">
+                                    <label>First Line of Tab</label>
+                                    <input type="text" class="form-control" ng-model="tab.FirstLine" />
+                                    <label>Second Line of Tab</label>
+                                    <input type="text" class="form-control" ng-model="tab.SecondLine" />
+                                    <label>Paper Color</label>
+                                    <select class="form-control" ng-model="tab.PaperColor" ng-options="color as color.Name for color in workbooksDocument.binderColors"></select>
+                                </div>
+                            </uib-accordion-group>
+                            <div class="form-group pull-right" style="margin-top: 5px;">
+                                <button type="button" class="btn btn-primary btn-sm" ng-click="workbooksDocument.addTab()" ng-disabled="workbooksDocument.isTabInvalid()">Add Tab</button>
+                            </div>
+                        </uib-accordion>
+                        <!--<div class="form-group" ng-show="workbooksDocument.customizationOptions.Binding.Name && workbooksDocument.customizationOptions.Binding.Name != 'None' && workbooksDocument.customizationOptions.Binding.Name != 'Staple'">
                             <label>First Line of Tab</label>
                             <input type="text" class="form-control" ng-model="workbooksDocument.customizationOptions.TabFirstLine" />
                             <label>Second Line of Tab</label>
                             <input type="text" class="form-control" ng-model="workbooksDocument.customizationOptions.TabSecondLine" />
                             <label>Paper Color</label>
                             <select class="form-control" ng-model="workbooksDocument.customizationOptions.TabColor" ng-options="color as color.Name for color in workbooksDocument.binderColors"></select>
-                        </div>
+                        </div>-->
                         <div class="alert alert-info" ng-show="!workbooksDocument.customizationOptions.Binding.Name || workbooksDocument.customizationOptions.Binding.Name == 'None' || workbooksDocument.customizationOptions.Binding.Name == 'Staple'">
                             <p>Tabs are unavailable if you have selected Stapling.</p>
                             <p>Tabs are available only if Binding of 3-Hole Punching is selected.</p>

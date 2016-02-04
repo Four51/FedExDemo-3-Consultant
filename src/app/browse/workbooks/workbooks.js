@@ -263,6 +263,32 @@ function WorkbooksDocumentController($sce, $state, $rootScope, Product, Workbook
     vm.customizationOptions.PrintColor = vm.printColors[0];
     vm.customizationOptions.Binding = vm.binding[0];
 
+    if (!vm.customizationOptions.Tabs || !vm.customizationOptions.length) {
+        vm.customizationOptions.Tabs = [
+            {
+                FirstLine: '',
+                SecondLine: '',
+                PaperColor: null
+            }
+        ];
+        vm.currentTab = 0;
+    }
+
+    vm.isTabInvalid = function() {
+        return (!vm.customizationOptions.Tabs[vm.currentTab].FirstLine || !vm.customizationOptions.Tabs[vm.currentTab].SecondLine || !vm.customizationOptions.Tabs[vm.currentTab].PaperColor)
+    };
+
+    vm.addTab = function() {
+        vm.customizationOptions.Tabs.push(
+            {
+                FirstLine: '',
+                SecondLine: '',
+                PaperColor: null
+            }
+        );
+        vm.currentTab++;
+    };
+
     vm.submit = function() {
         WorkbooksService.AddWorkbookToOrder(vm.product, vm.customizationOptions)
             .then(function() {
