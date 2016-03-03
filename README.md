@@ -1,3 +1,5 @@
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 # OrderCloud-Components - AngularJS
 A project for building and testing components
 ***
